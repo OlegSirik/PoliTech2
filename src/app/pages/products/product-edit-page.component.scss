@@ -1,0 +1,37 @@
+.sheet {
+  padding: var(--pt-space-5);
+}
+
+.sheet h2 {
+  margin-bottom: var(--pt-space-4);
+  font-size: var(--pt-font-lg);
+}
+
+.props {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pt-space-3);
+  margin: 0;
+}
+
+.props div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pt-space-3);
+  padding-bottom: var(--pt-space-2);
+  border-bottom: 1px solid var(--pt-color-line);
+}
+
+.props dt {
+  color: var(--pt-color-ink-soft);
+  font-size: var(--pt-font-xs);
+  font-weight: var(--pt-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.props dd {
+  margin: 0;
+  text-align: right;
+  font-weight: var(--pt-weight-semibold);
+}

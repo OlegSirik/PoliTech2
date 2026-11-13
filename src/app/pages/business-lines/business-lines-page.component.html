@@ -1,0 +1,14 @@
+<pt-search-page
+  title="Линии бизнеса"
+  subtitle="Группы продуктов: схема, покрытия, файлы, строки и тарифные таблицы."
+  [breadcrumbs]="breadcrumbs"
+  [columns]="columns"
+  [rows]="rows()"
+  [actions]="actions"
+  [rowActions]="rowActions"
+  [loading]="loading()"
+  [(query)]="query"
+  (action)="onAction($event)"
+  (rowAction)="onRowAction($event)"
+  (rowClick)="open($event)">
+</pt-search-page>

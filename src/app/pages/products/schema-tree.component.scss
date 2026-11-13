@@ -1,0 +1,73 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--pt-space-3);
+  margin-bottom: var(--pt-space-3);
+}
+
+.toolbar mat-slide-toggle {
+  margin-right: auto;
+}
+
+.tree {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tree th,
+.tree td {
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--pt-color-line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tree th {
+  font-size: var(--pt-font-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pt-color-ink-soft);
+}
+
+.code {
+  width: 160px;
+  text-align: end;
+}
+
+.actions {
+  width: 196px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+}
+
+.spacer {
+  display: inline-block;
+  width: 40px;
+  flex: 0 0 40px;
+}
+
+.is-deleted {
+  opacity: 0.55;
+}
+
+.is-on {
+  color: var(--pt-color-accent, #b8612d);
+}
+
+.danger {
+  color: var(--pt-color-danger);
+}
+
+.empty {
+  color: var(--pt-color-ink-soft);
+  padding: var(--pt-space-4);
+}

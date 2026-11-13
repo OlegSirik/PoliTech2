@@ -1,0 +1,140 @@
+.packages {
+  display: grid;
+  gap: var(--pt-space-3);
+}
+
+.packages .toolbar,
+.deductibles__head,
+.cover-card header,
+.pkg__head {
+  display: flex;
+  align-items: center;
+  gap: var(--pt-space-2);
+}
+
+.packages .toolbar,
+.deductibles__head,
+.cover-card header {
+  justify-content: flex-end;
+}
+
+.packages .toolbar h2,
+.deductibles__head strong,
+.cover-card h3 {
+  margin-right: auto;
+}
+
+.pkg__head {
+  padding: var(--pt-space-1) var(--pt-space-3);
+  cursor: pointer;
+}
+
+.pkg__head strong {
+  min-width: 8ch;
+  font-weight: var(--pt-weight-semibold);
+}
+
+.pkg__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.pkg__body {
+  display: grid;
+  gap: var(--pt-space-3);
+  padding: 0 var(--pt-space-4) var(--pt-space-4);
+  border-top: 1px solid var(--pt-color-line);
+}
+
+.packages .toolbar h2 {
+  font-size: var(--pt-font-lg);
+  font-weight: var(--pt-weight-semibold);
+  letter-spacing: var(--pt-tracking-tight);
+  line-height: var(--pt-line-tight);
+}
+
+.covers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pt-space-3);
+}
+
+.cover-card {
+  box-sizing: border-box;
+  padding: var(--pt-space-3) var(--pt-space-4);
+  border: 1px solid var(--pt-color-line);
+  border-radius: var(--pt-radius-sm);
+  background: var(--pt-color-surface-raised);
+}
+
+.cover-card header {
+  margin-bottom: var(--pt-space-3);
+}
+
+.cover-card h3 {
+  font-size: var(--pt-font-lg);
+  font-weight: var(--pt-weight-semibold);
+  line-height: var(--pt-line-tight);
+}
+
+.cover-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--pt-space-4) var(--pt-space-5);
+}
+
+.kv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pt-space-1) var(--pt-space-2);
+  font-size: var(--pt-font-sm);
+  line-height: var(--pt-line-body);
+}
+
+.kv span {
+  flex: 0 0 9.5rem;
+  color: var(--pt-color-ink-soft);
+  font-size: var(--pt-font-xs);
+}
+
+.kv b {
+  font-weight: var(--pt-weight-medium);
+  color: var(--pt-color-ink);
+}
+
+.cover-card__meta,
+.formulas,
+.deductibles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pt-space-2);
+}
+
+.deductibles {
+  grid-column: 1 / -1;
+  margin-top: var(--pt-space-2);
+}
+
+.deductibles__head strong {
+  font-size: var(--pt-font-sm);
+  font-weight: var(--pt-weight-semibold);
+  line-height: var(--pt-line-tight);
+}
+
+.deductibles td,
+.files td {
+  vertical-align: middle;
+}
+
+.row-actions {
+  white-space: nowrap;
+  width: 1%;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .cover-card__body {
+    grid-template-columns: 1fr;
+  }
+}

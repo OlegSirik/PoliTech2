@@ -1,0 +1,103 @@
+.side-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--pt-space-2);
+}
+
+.side-toolbar .example-type {
+  width: 220px;
+  margin-right: auto;
+}
+
+.example-fields {
+  display: grid;
+  gap: var(--pt-space-3);
+}
+
+.example-fields mat-form-field {
+  width: 100%;
+}
+
+.example-fields textarea {
+  font-family: var(--pt-font-mono);
+  font-size: var(--pt-font-sm);
+  line-height: var(--pt-line-body);
+}
+
+.markdown {
+  padding: var(--pt-space-5) var(--pt-space-6);
+  background: var(--pt-color-surface-raised);
+  border: 1px solid var(--pt-color-line);
+  border-radius: var(--pt-radius-md);
+  color: var(--pt-color-ink);
+  font-size: var(--pt-font-md);
+  line-height: var(--pt-line-body);
+}
+
+:host ::ng-deep .markdown h1,
+:host ::ng-deep .markdown h2,
+:host ::ng-deep .markdown h3,
+:host ::ng-deep .markdown h4 {
+  margin: var(--pt-space-4) 0 var(--pt-space-2);
+  letter-spacing: var(--pt-tracking-tight);
+  line-height: var(--pt-line-tight);
+}
+
+:host ::ng-deep .markdown h1 { font-size: var(--pt-font-2xl); }
+:host ::ng-deep .markdown h2 { font-size: var(--pt-font-xl); }
+:host ::ng-deep .markdown h3,
+:host ::ng-deep .markdown h4 { font-size: var(--pt-font-lg); }
+
+:host ::ng-deep .markdown p,
+:host ::ng-deep .markdown ul,
+:host ::ng-deep .markdown ol {
+  margin: 0 0 var(--pt-space-3);
+}
+
+:host ::ng-deep .markdown ul,
+:host ::ng-deep .markdown ol {
+  padding-left: var(--pt-space-5);
+}
+
+:host ::ng-deep .markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--pt-space-3) 0;
+  font-size: var(--pt-font-sm);
+}
+
+:host ::ng-deep .markdown th,
+:host ::ng-deep .markdown td {
+  padding: var(--pt-space-2) var(--pt-space-3);
+  border: 1px solid var(--pt-color-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+:host ::ng-deep .markdown th {
+  background: var(--pt-color-surface-muted);
+  color: var(--pt-color-ink-soft);
+  font-size: var(--pt-font-xs);
+  font-weight: var(--pt-weight-semibold);
+}
+
+:host ::ng-deep .markdown pre {
+  margin: 0 0 var(--pt-space-3);
+  padding: var(--pt-space-3);
+  overflow-x: auto;
+  background: var(--pt-color-surface-muted);
+  border-radius: var(--pt-radius-sm);
+}
+
+:host ::ng-deep .markdown code {
+  font-family: var(--pt-font-mono);
+  font-size: var(--pt-font-sm);
+}
+
+:host ::ng-deep .markdown hr {
+  border: 0;
+  border-top: 1px solid var(--pt-color-line);
+  margin: var(--pt-space-4) 0;
+}

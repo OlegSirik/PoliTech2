@@ -1,0 +1,97 @@
+<pt-page-header
+  [title]="mode() === 'edit' ? 'Справочники' : 'Выбор значений: ' + (selectedDictCode() || '')"
+  [subtitle]="mode() === 'edit' ? 'Справочники тенанта и их значения. Изменения сохраняются в PoliTechAPI через BFF.' : 'Отметьте значения и вернитесь на предыдущую страницу.'"
+  [breadcrumbs]="mode() === 'edit' ? [{ label: 'Обзор', route: '/dashboard' }, { label: 'Справочники' }] : [{ label: 'Справочники', route: '/refdicts' }, { label: 'Выбор' }]"
+  [actions]="headerActions()"
+  (action)="onHeader($event)">
+</pt-page-header>
+
+<div class="layout" [class.layout--select]="mode() === 'select'">
+  @if (mode() === 'edit') {
+    <section class="panel pt-panel">
+      <header>
+        <h2>Справочники</h2>
+        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addDict()">Добавить</button>
+      </header>
+      @if (loadingDicts()) {
+        <p class="state">Загрузка…</p>
+      } @else {
+        <table>
+          <thead>
+            <tr><th>Код</th><th>Название</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (dict of dicts(); track dict.code) {
+              <tr [class.is-selected]="selectedDictCode() === dict.code" (click)="selectDict(dict)">
+                <td>{{ dict.code }}</td>
+                <td>{{ dict.name }}</td>
+                <td class="actions">
+                  <button mat-icon-button type="button" aria-label="Изменить" (click)="editDict(dict, $event)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button type="button" class="danger" aria-label="Удалить" (click)="deleteDict(dict, $event)"><mat-icon>delete</mat-icon></button>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="state">Справочников нет</td></tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+
+  <section class="panel pt-panel">
+    <header>
+      <h2>
+        @if (mode() === 'edit') {
+          Значения @if (selectedDictCode()) { ({{ selectedDictCode() }}) }
+        } @else {
+          Значения справочника
+        }
+      </h2>
+      @if (mode() === 'edit' && selectedDictCode()) {
+        <button mat-flat-button color="primary" type="button" (click)="addItem()">Добавить</button>
+      }
+    </header>
+
+    @if (mode() === 'select') {
+      <p class="picked">Выбрано: {{ selectedValues() || '—' }}</p>
+    }
+    @if (loadingItems()) {
+      <p class="state">Загрузка…</p>
+    } @else if (mode() === 'edit' && !selectedDictCode()) {
+      <p class="state">Выберите справочник</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            @if (mode() === 'select') { <th></th> }
+            <th>Код</th>
+            <th>Название</th>
+            @if (mode() === 'edit') { <th></th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.code) {
+            <tr>
+              @if (mode() === 'select') {
+                <td>
+                  <mat-checkbox [checked]="isSelected(item.code)" (change)="toggleSelection(item.code, $event.checked)"></mat-checkbox>
+                </td>
+              }
+              <td>{{ item.code }}</td>
+              <td>{{ item.name }}</td>
+              @if (mode() === 'edit') {
+                <td class="actions">
+                  <button mat-icon-button type="button" aria-label="Изменить" (click)="editItem(item, $event)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button type="button" class="danger" aria-label="Удалить" (click)="deleteItem(item, $event)"><mat-icon>delete</mat-icon></button>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr><td [attr.colspan]="mode() === 'select' ? 3 : 3" class="state">Значений нет</td></tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</div>

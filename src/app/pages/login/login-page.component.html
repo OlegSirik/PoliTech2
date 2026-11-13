@@ -1,0 +1,80 @@
+<section class="story">
+  <div class="story__brand">
+    <span>P2</span>
+    <strong>PoliTech2</strong>
+  </div>
+
+  <div class="story__copy">
+    <h1>Настройка страховых продуктов</h1>
+    <p>Линии бизнеса, пакеты, покрытия и калькуляторы — в одной консоли, отдельно от витрины продаж.</p>
+  </div>
+
+  <ul>
+    <li>Карточка продукта и версии</li>
+    <li>Поиск по каталогу</li>
+    <li>Свойства выбранного объекта</li>
+  </ul>
+</section>
+
+<section class="panel">
+  <form class="card pt-panel" [formGroup]="form" (ngSubmit)="submit()">
+    <header class="card__head">
+      <div>
+        <h2>Вход</h2>
+        <p>Вход идёт через BFF. Браузер не обращается к PoliTechAPI напрямую.</p>
+      </div>
+      <pt-theme-toggle />
+    </header>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Тенант</mat-label>
+      <input matInput formControlName="tenant" autocomplete="organization">
+      @if (form.controls.tenant.touched && form.controls.tenant.invalid) {
+        <mat-error>Укажите тенант</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Клиент</mat-label>
+      <input matInput formControlName="clientId" autocomplete="off" placeholder="необязательно">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Логин</mat-label>
+      <input matInput formControlName="login" autocomplete="username">
+      @if (form.controls.login.touched && form.controls.login.invalid) {
+        <mat-error>Укажите логин</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Пароль</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        [type]="hidePassword() ? 'password' : 'text'"
+        autocomplete="current-password">
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        [attr.aria-label]="hidePassword() ? 'Показать пароль' : 'Скрыть пароль'"
+        (click)="hidePassword.set(!hidePassword())">
+        <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <mat-error>Укажите пароль</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="card__error" role="alert">{{ error() }}</p>
+    }
+
+    <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Вход…' : 'Войти' }}
+    </button>
+
+    <p class="card__hint">BFF проверяет учётную запись в PoliTechAPI и хранит токен в серверной сессии.</p>
+  </form>
+</section>

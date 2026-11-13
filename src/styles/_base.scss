@@ -1,0 +1,76 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--pt-font-family);
+  font-size: var(--pt-font-md);
+  line-height: var(--pt-line-body);
+  color: var(--pt-color-ink);
+  background: var(--pt-color-canvas);
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+a {
+  color: var(--pt-color-primary);
+}
+
+.pt-panel {
+  background: var(--pt-color-surface);
+  border: 1px solid var(--pt-color-line);
+  border-radius: var(--pt-radius-md);
+  box-shadow: var(--pt-shadow-sm);
+}
+
+.pt-status {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--pt-radius-pill);
+  font-size: var(--pt-font-xs);
+  font-weight: var(--pt-weight-semibold);
+  letter-spacing: 0.01em;
+  background: var(--pt-color-surface-muted);
+  color: var(--pt-color-ink-soft);
+}
+
+.pt-status.is-published {
+  background: var(--pt-color-success-container);
+  color: var(--pt-color-success);
+}
+
+.pt-status.is-draft {
+  background: var(--pt-color-warning-container);
+  color: var(--pt-color-warning);
+}
+
+.pt-status.is-archived {
+  background: var(--pt-color-surface-muted);
+  color: var(--pt-color-ink-soft);
+}
+
+.pt-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--pt-space-2) var(--pt-space-4);
+}
+
+.pt-field-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 720px) {
+  .pt-field-grid {
+    grid-template-columns: 1fr;
+  }
+}

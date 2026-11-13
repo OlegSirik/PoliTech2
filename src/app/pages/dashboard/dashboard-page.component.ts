@@ -1,0 +1,30 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { CatalogApiService } from '../../core/api/catalog-api.service';
+import { ProductSummary, workingVersion } from '../../core/api/catalog.models';
+import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
+
+@Component({
+  selector: 'pt-dashboard-page',
+  imports: [RouterLink, MatIconModule, PageHeaderComponent],
+  templateUrl: './dashboard-page.component.html',
+  styleUrl: './dashboard-page.component.scss',
+})
+export class DashboardPageComponent implements OnInit {
+  private readonly api = inject(CatalogApiService);
+  protected readonly products = signal<ProductSummary[]>([]);
+  protected readonly lineCount = signal(0);
+  protected readonly versionOf = workingVersion;
+
+  ngOnInit(): void {
+    this.api.products().subscribe({
+      next: (items) => this.products.set(items ?? []),
+      error: () => this.products.set([]),
+    });
+    this.api.lobs().subscribe({
+      next: (items) => this.lineCount.set(items?.length ?? 0),
+      error: () => this.lineCount.set(0),
+    });
+  }
+}

@@ -1,0 +1,54 @@
+<div class="toolbar">
+  <mat-slide-toggle [ngModel]="showDeleted()" (ngModelChange)="showDeleted.set($event)">Показывать скрытые</mat-slide-toggle>
+  <button mat-stroked-button type="button" (click)="expandAll()">Развернуть всё</button>
+  <button mat-stroked-button type="button" (click)="collapseAll()">Свернуть всё</button>
+</div>
+
+<table class="tree">
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th class="code">Код</th>
+      <th class="actions"></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of rows(); track row.node.id) {
+      <tr [class.is-deleted]="row.node.source.isDeleted">
+        <td>
+          <div class="name" [style.padding-left.px]="row.level * 20">
+            @if (row.expandable) {
+              <button mat-icon-button type="button" [attr.aria-label]="row.expanded ? 'Свернуть' : 'Развернуть'" (click)="toggle(row)">
+                <mat-icon>{{ row.expanded ? 'remove' : 'add' }}</mat-icon>
+              </button>
+            } @else {
+              <span class="spacer"></span>
+            }
+            <span>{{ row.node.source.varName }}</span>
+          </div>
+        </td>
+        <td class="code">{{ row.node.source.varCode }}</td>
+        <td class="actions">
+          @if (actions() === 'product') {
+            <button mat-icon-button type="button" matTooltip="Тарифный фактор" [disabled]="locked()" (click)="flag.emit({ variable: row.node.source, field: 'isTarifFactor' })">
+              <mat-icon [class.is-on]="row.node.source.isTarifFactor">calculate</mat-icon>
+            </button>
+            <button mat-icon-button type="button" matTooltip="Обязательность для ввода" [disabled]="locked()" (click)="flag.emit({ variable: row.node.source, field: 'isOptional' })">
+              <mat-icon [class.is-on]="row.node.source.isOptional">star</mat-icon>
+            </button>
+          }
+          @if (row.node.source.isDeleted) {
+            <button mat-icon-button type="button" matTooltip="Вернуть в дерево" [disabled]="locked()" (click)="restore.emit(row.node.source)">
+              <mat-icon>add</mat-icon>
+            </button>
+          } @else {
+            <pt-action-button kind="edit" [disabled]="locked() || isObject(row.node.source)" (pressed)="edit.emit(row.node.source)" />
+            <pt-action-button kind="delete" [disabled]="locked() || !!row.node.source.isSystem" (pressed)="remove.emit(row.node.source)" />
+          }
+        </td>
+      </tr>
+    } @empty {
+      <tr><td colspan="3" class="empty">В схеме нет узлов</td></tr>
+    }
+  </tbody>
+</table>

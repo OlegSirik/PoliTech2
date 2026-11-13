@@ -1,0 +1,122 @@
+<pt-page-header
+  [title]="'Калькулятор ' + calc.packageNo"
+  [subtitle]="calc.productCode + ' · версия ' + calc.versionNo"
+  [breadcrumbs]="[{ label: 'Калькуляторы', route: '/calculators' }, { label: calc.packageNo }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">К продукту</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="missing()" (click)="exportFile()">В файл</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="missing()" (click)="importFile()">Из файла</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="missing()" (click)="makeTemplate()">Шаблон</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [hidden]="missing()" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+@if (missing()) {
+  <section class="panel pt-panel">
+    <h2>Калькулятора для этого пакета нет</h2>
+    <div class="toolbar">
+      <button mat-flat-button color="primary" type="button" (click)="create()">Создать пустой</button>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Шаблон линии</mat-label>
+        <mat-select [(ngModel)]="templateId">
+          <mat-option [value]="null">Без шаблона</mat-option>
+          @for (item of templates; track item.calculatorId) {
+            <mat-option [value]="item.calculatorId">{{ item.calculatorName || item.calculatorId }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button type="button" [disabled]="templateId == null" (click)="create(templateId)">Создать из шаблона</button>
+    </div>
+  </section>
+} @else {
+  <mat-tab-group class="tabs">
+    <mat-tab label="Тариф">
+      <section class="panel pt-panel">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Описание для LLM</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="calc.llmText" (ngModelChange)="touch()"></textarea>
+        </mat-form-field>
+        <button mat-stroked-button type="button" [disabled]="asking()" (click)="askLlm()">{{ asking() ? 'Генерация…' : 'Выполнить' }}</button>
+        <pre>{{ readable() || 'Формул нет' }}</pre>
+        <div class="toolbar"><button mat-flat-button color="primary" type="button" (click)="addVar()">Переменная</button></div>
+        <table>
+          <thead><tr><th>Код</th><th>Название</th><th>Вид</th><th>Значение</th><th></th></tr></thead>
+          <tbody>
+            @for (item of calc.vars; track item.varCode) {
+              <tr>
+                <td>{{ item.varCode }}</td><td>{{ item.varName }}</td><td>{{ item.varKind }}</td>
+                <td><input [ngModel]="item.varValue" (ngModelChange)="item.varValue = $event; touch()"></td>
+                <td><button mat-icon-button type="button" class="danger" (click)="deleteVar(item)"><mat-icon>delete</mat-icon></button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </mat-tab>
+    <mat-tab label="Формула">
+      <section class="split">
+        <div class="panel pt-panel">
+          <button mat-flat-button color="primary" type="button" (click)="addFormula()">Формула</button>
+          <table>
+            <tbody>
+              @for (item of calc.formulas; track $index) {
+                <tr [class.is-selected]="formulaIndex === $index" (click)="formulaIndex = $index">
+                  <td><input [ngModel]="item.varCode" (ngModelChange)="item.varCode = $event; touch()"></td>
+                  <td><input [ngModel]="item.varName" (ngModelChange)="item.varName = $event; touch()"></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="panel pt-panel">
+          <button mat-stroked-button type="button" [disabled]="!formula()" (click)="addLine()">Строка</button>
+          <table>
+            <tbody>
+              @for (line of formula()?.lines ?? []; track $index) {
+                <tr>
+                  <td><input [ngModel]="line.conditionLeft" (ngModelChange)="line.conditionLeft = $event; touch()"></td>
+                  <td><input [ngModel]="line.conditionOperator" (ngModelChange)="line.conditionOperator = $event; touch()"></td>
+                  <td><input [ngModel]="line.conditionRight" (ngModelChange)="line.conditionRight = $event; touch()"></td>
+                  <td><input [ngModel]="line.expressionLeft" (ngModelChange)="line.expressionLeft = $event; touch()"></td>
+                  <td><input [ngModel]="line.expressionOperator" (ngModelChange)="line.expressionOperator = $event; touch()"></td>
+                  <td><input [ngModel]="line.expressionRight" (ngModelChange)="line.expressionRight = $event; touch()"></td>
+                  <td><button mat-icon-button type="button" class="danger" (click)="deleteLine(line)"><mat-icon>delete</mat-icon></button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </mat-tab>
+    <mat-tab label="Тарифные таблицы">
+      <div class="stack">
+        <pt-tariff-tables
+          [tables]="calc.coefficients"
+          [vars]="calc.vars"
+          [calculatorId]="calc.id ?? 0"
+          (changed)="onTariffTables($event)"
+          (selected)="selectCoefficient($event)" />
+        @if (coefficient()) {
+          <section class="panel pt-panel">
+            <div class="toolbar">
+              <h2>Тарифная сетка {{ coefficient()?.varName || coefficient()?.varCode }}</h2>
+              <button mat-stroked-button type="button" (click)="addDataRow()">Строка данных</button>
+              <button mat-flat-button color="primary" type="button" (click)="saveData()">Сохранить данные</button>
+            </div>
+            <table>
+              <tbody>
+                @for (row of dataRows; track $index) {
+                  <tr>
+                    <td>{{ row.conditionValue.join(' | ') }}</td>
+                    <td><input type="number" [ngModel]="row.resultValue" (ngModelChange)="row.resultValue = +$event"></td>
+                  </tr>
+                } @empty { <tr><td class="state">Строк данных нет</td></tr> }
+              </tbody>
+            </table>
+          </section>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+}

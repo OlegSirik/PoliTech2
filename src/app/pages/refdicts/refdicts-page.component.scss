@@ -1,0 +1,76 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.2fr);
+  gap: var(--pt-space-4);
+}
+
+.layout--select {
+  grid-template-columns: 1fr;
+}
+
+.panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pt-space-3);
+  padding: var(--pt-space-4);
+  border-bottom: 1px solid var(--pt-color-line);
+}
+
+.panel h2 {
+  font-size: var(--pt-font-lg);
+  letter-spacing: var(--pt-tracking-tight);
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel th,
+.panel td {
+  padding: 10px var(--pt-space-4);
+  border-bottom: 1px solid var(--pt-color-line);
+  text-align: left;
+}
+
+.panel th {
+  font-size: var(--pt-font-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pt-color-ink-soft);
+}
+
+.panel tbody tr {
+  cursor: pointer;
+}
+
+.panel tbody tr:hover td {
+  background: var(--pt-state-hover);
+}
+
+.panel tr.is-selected td {
+  background: var(--pt-state-selected);
+}
+
+.actions {
+  width: 96px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.danger {
+  color: var(--pt-color-danger);
+}
+
+.state,
+.picked {
+  padding: var(--pt-space-4);
+  color: var(--pt-color-ink-soft);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,236 @@
+<pt-page-header
+  [title]="product.name || 'Продукт'"
+  [subtitle]="'Версия ' + product.versionNo + ' · ' + (product.versionStatus || '—') + (locked ? ' · прод только для чтения' : '')"
+  [breadcrumbs]="[{ label: 'Продукты', route: '/products' }, { label: product.code || 'Карточка' }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-stroked-button type="button" (click)="exportFile()">В файл</button>
+  <button ptHeaderActions mat-stroked-button type="button" [disabled]="locked" (click)="importFile()">Из файла</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="deleteVersion()">Удалить версию</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="publish()">В прод</button>
+  <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'PROD'" (click)="newVersion()">Новая версия</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="locked || saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<mat-tab-group class="tabs">
+  <mat-tab label="Основные данные">
+    <section class="panel pt-panel">
+      <div class="grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Линия</mat-label><input matInput [ngModel]="product.lob" readonly></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Страховая компания</mat-label>
+          <mat-select [(ngModel)]="product.insCompanyId" [disabled]="locked" (ngModelChange)="touch()">
+            <mat-option [value]="null">Не выбрано</mat-option>
+            @for (company of companies; track company.id) {
+              <mat-option [value]="company.id">{{ company.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Код</mat-label><input matInput [(ngModel)]="product.code" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Название</mat-label><input matInput [(ngModel)]="product.name" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Форма ЛК</mat-label>
+          <mat-select [(ngModel)]="product.policyFormPageId" [disabled]="locked" (ngModelChange)="touch()">
+            <mat-option [value]="null">Не выбрано</mat-option>
+            @for (form of forms; track form.pageId) {
+              <mat-option [value]="form.pageId">{{ form.title || form.pageId }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Маска номера</mat-label><input matInput [(ngModel)]="product.numberGenerator.mask" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Период ожидания</mat-label><input matInput [(ngModel)]="product.waitingPeriod.validatorValue" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Срок полиса</mat-label><input matInput [(ngModel)]="product.policyTerm.validatorValue" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+      </div>
+      <mat-checkbox [(ngModel)]="product.rules.insuredEqualsPolicyHolder" [disabled]="locked" (ngModelChange)="touch()">Застрахованный совпадает со страхователем</mat-checkbox>
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Проверки">
+    <section class="panel pt-panel">
+      <div class="toolbar"><h2>Котировка</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('quote')">Добавить</button></div>
+      <table>
+        <thead><tr><th>Ключ</th><th>Правило</th><th>Значение</th><th>Ошибка</th><th></th></tr></thead>
+        <tbody>
+          @for (item of product.quoteValidator; track $index) {
+            <tr><td>{{ item.keyLeft }}</td><td>{{ item.ruleType }}</td><td>{{ item.valueRight }}</td><td>{{ item.errorText }}</td>
+              <td><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('quote', $index)"><mat-icon>delete</mat-icon></button></td></tr>
+          }
+        </tbody>
+      </table>
+      <div class="toolbar"><h2>Сохранение</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('save')">Добавить</button></div>
+      <table>
+        <tbody>
+          @for (item of product.saveValidator; track $index) {
+            <tr><td>{{ item.keyLeft }}</td><td>{{ item.ruleType }}</td><td>{{ item.errorText }}</td>
+              <td><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('save', $index)"><mat-icon>delete</mat-icon></button></td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Схема договора">
+    <section class="panel pt-panel">
+      <pt-schema-tree
+        [vars]="product.vars"
+        [locked]="locked"
+        (edit)="editSchemaVar($event)"
+        (remove)="deleteSchemaVar($event)"
+        (restore)="restoreSchemaVar($event)"
+        (flag)="toggleSchemaFlag($event)">
+      </pt-schema-tree>
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Пакеты">
+    <section class="packages">
+      <div class="toolbar">
+        <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addPackage()">Добавить пакет</button>
+      </div>
+      @for (pkg of product.packages; track pkg.code) {
+        <article class="pkg pt-panel">
+          <header class="pkg__head" (click)="togglePackage(pkg.code)">
+            <button mat-icon-button type="button" [attr.aria-label]="packageOpen(pkg.code) ? 'Свернуть пакет' : 'Развернуть пакет'" (click)="$event.stopPropagation(); togglePackage(pkg.code)">
+              <mat-icon>{{ packageOpen(pkg.code) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+            <strong>{{ pkg.code }}</strong>
+            <span>{{ pkg.name }}</span>
+            <span class="pkg__actions" (click)="$event.stopPropagation()">
+              <button mat-icon-button type="button" matTooltip="Калькулятор" (click)="openCalculator(pkg)"><mat-icon>settings</mat-icon></button>
+              <button mat-icon-button type="button" matTooltip="Редактировать" [disabled]="locked" (click)="editPackage(pkg)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button type="button" class="danger" matTooltip="Удалить" [disabled]="locked" (click)="deletePackage(pkg)"><mat-icon>delete</mat-icon></button>
+            </span>
+          </header>
+          @if (packageOpen(pkg.code)) {
+            <div class="pkg__body">
+              <div class="toolbar">
+                <h2>Покрытия</h2>
+                <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addCover(pkg)">Добавить</button>
+              </div>
+              <div class="covers">
+                @for (cover of pkg.covers; track cover.code) {
+                  <article class="cover-card">
+                    <header>
+                      <h3>{{ coverTitle(cover) }}</h3>
+                      <span>
+                        <button mat-icon-button type="button" matTooltip="Редактировать" [disabled]="locked" (click)="editCover(pkg, cover)"><mat-icon>edit</mat-icon></button>
+                        <button mat-icon-button type="button" class="danger" matTooltip="Удалить" [disabled]="locked" (click)="deleteCover(pkg, cover)"><mat-icon>delete</mat-icon></button>
+                      </span>
+                    </header>
+                    <div class="cover-card__body">
+                      <div class="cover-card__meta">
+                        <div class="kv"><span>Код</span><b>{{ cover.code || '—' }}</b></div>
+                        <div class="kv"><span>Обязательное</span><b>{{ cover.isMandatory ? 'Да' : 'Нет' }}</b></div>
+                        <div class="kv"><span>Период исключения</span><b>{{ cover.waitingPeriod || '—' }}</b></div>
+                        <div class="kv"><span>Срок покрытия</span><b>{{ cover.coverageTerm || '—' }}</b></div>
+                        <div class="kv"><span>Франшиза обязательна</span><b>{{ cover.isDeductibleMandatory ? 'Да' : 'Нет' }}</b></div>
+                      </div>
+                      <div class="formulas">
+                        <div class="kv"><span>Страховая сумма</span><b>фикс</b></div>
+                        <div class="kv"><span>Премия</span><b>пакетная формула</b></div>
+                        <div class="kv"><span>Франшиза</span><b>пакетная формула</b></div>
+                      </div>
+                      <div class="deductibles">
+                        <div class="deductibles__head">
+                          <strong>Франшизы</strong>
+                          <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addDeductible(cover)">Добавить</button>
+                        </div>
+                        <table>
+                          <thead><tr><th>№</th><th>Тип франшизы</th><th></th></tr></thead>
+                          <tbody>
+                            @for (item of cover.deductibles; track $index; let deductibleIndex = $index) {
+                              <tr>
+                                <td>{{ item.id || '' }}</td>
+                                <td>{{ item.text }}</td>
+                                <td class="row-actions">
+                                  <button mat-icon-button type="button" [disabled]="locked" (click)="editDeductible(cover, deductibleIndex)"><mat-icon>edit</mat-icon></button>
+                                  <button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteDeductible(cover, deductibleIndex)"><mat-icon>delete</mat-icon></button>
+                                </td>
+                              </tr>
+                            } @empty {
+                              <tr><td colspan="3" class="state">Нет франшиз</td></tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </article>
+                } @empty {
+                  <p class="state">Нет покрытий в пакете</p>
+                }
+              </div>
+              <div class="toolbar">
+                <h2>Файлы</h2>
+                <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addFile(pkg)">Добавить</button>
+              </div>
+              <table class="files">
+                <thead>
+                  <tr><th>Тип</th><th>Номер</th><th>Файл</th><th>Статический</th><th></th></tr>
+                </thead>
+                <tbody>
+                  @for (file of pkg.files; track file.fileCode) {
+                    <tr>
+                      <td>{{ file.fileCode }}</td>
+                      <td>{{ file.fileNr ?? 1 }}</td>
+                      <td>{{ file.fileName }}</td>
+                      <td>{{ file.isStatic ? 'да' : 'нет' }}</td>
+                      <td class="row-actions"><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteFile(pkg, file)"><mat-icon>delete</mat-icon></button></td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="state">Файлов нет</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </article>
+      } @empty {
+        <p class="state">Пакетов нет</p>
+      }
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Документация">
+    <section class="panel pt-panel">
+      <div class="side-toolbar">
+        <button mat-stroked-button type="button" (click)="loadDocs()">Загрузить</button>
+      </div>
+      @if (documentationHtml) {
+        <div class="markdown" [innerHTML]="documentationHtml"></div>
+      } @else if (documentationLoaded) {
+        <p class="state">Документация пуста</p>
+      } @else {
+        <p class="state">Документация ещё не загружена</p>
+      }
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Примеры">
+    <section class="panel pt-panel">
+      <div class="side-toolbar">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="example-type">
+          <mat-label>Тип</mat-label>
+          <mat-select [(ngModel)]="exampleType" (ngModelChange)="loadExample()">
+            <mat-option value="quote">Quote</mat-option>
+            <mat-option value="policy">Policy</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button type="button" (click)="loadExample()">Загрузить</button>
+        <button mat-stroked-button type="button" (click)="executeExample()">Execute</button>
+        <button mat-stroked-button type="button" (click)="saveExample()">Save</button>
+      </div>
+      <div class="example-fields">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Request</mat-label>
+          <textarea matInput [(ngModel)]="exampleRequest" rows="16" placeholder="JSON request"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Response</mat-label>
+          <textarea matInput [ngModel]="exampleResponse" rows="16" readonly placeholder="JSON response"></textarea>
+        </mat-form-field>
+      </div>
+    </section>
+  </mat-tab>
+</mat-tab-group>

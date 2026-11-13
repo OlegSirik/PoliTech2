@@ -1,0 +1,85 @@
+<pt-edit-page
+  [title]="isNew() ? 'Новое правило' : 'Правило ' + rule.code"
+  subtitle="CEL-выражение, при котором правило считается выполненным."
+  [breadcrumbs]="[{ label: 'Правила', route: '/rules' }, { label: isNew() ? 'Новое' : rule.code || 'Правило' }]"
+  [dirty]="dirty()"
+  [saving]="saving()"
+  (save)="save()"
+  (cancel)="back()">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="drawerOpen.set(!drawerOpen())">
+    {{ drawerOpen() ? 'Скрыть свойства' : 'Свойства' }}
+  </button>
+
+  <section class="sheet pt-panel" (input)="markDirty()" (change)="markDirty()">
+    <div class="pt-field-grid">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Область</mat-label>
+        <mat-select [(ngModel)]="rule.scopeType" [disabled]="scopeLocked">
+          @for (item of scopeTypes; track item) {
+            <mat-option [value]="item">{{ item }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Код области</mat-label>
+        <input matInput [(ngModel)]="rule.scopeCode" [readonly]="scopeLocked" placeholder="продукт, линия, тенант или клиент">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Код</mat-label>
+        <input matInput [(ngModel)]="rule.code" [readonly]="!isNew()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Название</mat-label>
+        <input matInput [(ngModel)]="rule.name">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Тип правила</mat-label>
+        <mat-select [(ngModel)]="rule.ruleType" [disabled]="ruleTypeLocked">
+          @for (item of ruleTypes; track item) {
+            <mat-option [value]="item">{{ item }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Приоритет</mat-label>
+        <input matInput type="number" [(ngModel)]="rule.priority">
+      </mat-form-field>
+      <mat-form-field class="span-2" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Текст правила</mat-label>
+        <textarea matInput rows="3" [(ngModel)]="rule.llmText" placeholder="Опишите правило обычным языком"></textarea>
+      </mat-form-field>
+    </div>
+
+    @if (!llmReady()) {
+      <p class="hint">LLM для тенанта не настроен или выключен. Выражение можно ввести вручную.</p>
+    }
+    <button mat-stroked-button type="button" [disabled]="askingLlm() || !(rule.llmText || '').trim()" (click)="askLlm()">
+      {{ askingLlm() ? 'Генерация…' : 'Создать правило' }}
+    </button>
+    @if (!isNew()) {
+      <button mat-stroked-button type="button" (click)="remove()">Удалить</button>
+    }
+
+    <div class="pt-field-grid expression">
+      <mat-form-field class="span-2" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>CEL-выражение (true = выполнено)</mat-label>
+        <textarea matInput rows="4" [(ngModel)]="rule.expression"></textarea>
+      </mat-form-field>
+      <mat-form-field class="span-2" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Сообщение при нарушении</mat-label>
+        <input matInput [(ngModel)]="rule.message">
+      </mat-form-field>
+    </div>
+  </section>
+
+  <pt-property-drawer [open]="drawerOpen()" title="Свойства" [subtitle]="rule.code || 'Новое правило'" (closed)="drawerOpen.set(false)">
+    <dl class="props">
+      <div><dt>Область</dt><dd>{{ rule.scopeType }}</dd></div>
+      <div><dt>Код области</dt><dd>{{ rule.scopeCode || '—' }}</dd></div>
+      <div><dt>Тип</dt><dd>{{ rule.ruleType }}</dd></div>
+      <div><dt>Приоритет</dt><dd>{{ rule.priority }}</dd></div>
+      <div><dt>Статус</dt><dd>{{ rule.recordStatus || 'ACTIVE' }}</dd></div>
+      <div><dt>Язык</dt><dd>{{ rule.expressionLanguage || 'CEL' }}</dd></div>
+    </dl>
+  </pt-property-drawer>
+</pt-edit-page>

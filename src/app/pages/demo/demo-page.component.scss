@@ -1,0 +1,145 @@
+.block {
+  margin-bottom: var(--pt-space-6);
+}
+
+.block > h2 {
+  margin-bottom: var(--pt-space-3);
+  font-size: var(--pt-font-lg);
+  letter-spacing: var(--pt-tracking-tight);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--pt-space-3);
+}
+
+.swatch {
+  overflow: hidden;
+}
+
+.swatch span {
+  display: block;
+  height: 64px;
+  border-bottom: 1px solid var(--pt-color-line);
+}
+
+.swatch strong,
+.swatch code {
+  display: block;
+  padding: 0 var(--pt-space-3);
+}
+
+.swatch strong {
+  padding-top: var(--pt-space-2);
+}
+
+.swatch code {
+  padding-bottom: var(--pt-space-3);
+  color: var(--pt-color-ink-soft);
+  font-size: var(--pt-font-xs);
+}
+
+.type,
+.states,
+.fields,
+.sheet {
+  padding: var(--pt-space-4);
+}
+
+.type p + p {
+  margin-top: var(--pt-space-2);
+}
+
+.type-3xl {
+  font-size: var(--pt-font-3xl);
+  line-height: var(--pt-line-tight);
+  letter-spacing: var(--pt-tracking-tight);
+  font-weight: var(--pt-weight-bold);
+}
+
+.type-xl {
+  font-size: var(--pt-font-xl);
+  font-weight: var(--pt-weight-semibold);
+}
+
+.type-md {
+  font-size: var(--pt-font-md);
+}
+
+.type-xs {
+  font-size: var(--pt-font-xs);
+  color: var(--pt-color-ink-soft);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.type-code {
+  font-family: var(--pt-font-mono);
+  font-size: var(--pt-font-sm);
+}
+
+.states {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pt-space-2);
+}
+
+.state-selected {
+  display: inline-flex;
+  align-items: center;
+  height: var(--pt-control-height);
+  padding: 0 var(--pt-space-3);
+  border-radius: var(--pt-radius-sm);
+  background: var(--pt-state-selected);
+  box-shadow: var(--pt-focus-ring);
+  font-weight: var(--pt-weight-semibold);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pt-space-4);
+  margin-top: var(--pt-space-3);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pt-space-3);
+}
+
+.props {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pt-space-3);
+  margin: 0;
+}
+
+.props div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pt-space-3);
+}
+
+.props dt {
+  color: var(--pt-color-ink-soft);
+}
+
+.props dd {
+  margin: 0;
+  font-weight: var(--pt-weight-semibold);
+}
+
+.restore {
+  margin-top: var(--pt-space-3);
+}
+
+@media (max-width: 960px) {
+  .swatches {
+    grid-template-columns: 1fr 1fr;
+  }
+}

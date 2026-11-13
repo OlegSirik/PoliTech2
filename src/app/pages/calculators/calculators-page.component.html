@@ -1,0 +1,44 @@
+<pt-page-header
+  title="Калькуляторы"
+  subtitle="Калькулятор открывается из пакета рабочей версии продукта."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Калькуляторы' }]">
+</pt-page-header>
+
+<section class="split">
+  <div class="panel pt-panel">
+    <h2>Продукты</h2>
+    @if (loading()) { <p class="state">Загрузка…</p> }
+    <table>
+      <tbody>
+        @for (item of products(); track item.id) {
+          <tr [class.is-selected]="selected()?.id === item.id" (click)="choose(item)">
+            <td>{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.lob }}</td>
+          </tr>
+        } @empty { <tr><td class="state">Продуктов нет</td></tr> }
+      </tbody>
+    </table>
+  </div>
+  <div class="panel pt-panel">
+    <h2>Пакеты {{ version()?.code }}</h2>
+    @if (!selected()) {
+      <p class="state">Выберите продукт</p>
+    } @else if (!version()) {
+      <p class="state">Загрузка версии…</p>
+    } @else {
+      <table>
+        <thead><tr><th>Код</th><th>Название</th><th></th></tr></thead>
+        <tbody>
+          @for (item of version()!.packages; track item.code) {
+            <tr>
+              <td>{{ item.code }}</td>
+              <td>{{ item.name }}</td>
+              <td><button mat-flat-button color="primary" type="button" (click)="open(item)">Открыть</button></td>
+            </tr>
+          } @empty { <tr><td colspan="3" class="state">В этой версии нет пакетов</td></tr> }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

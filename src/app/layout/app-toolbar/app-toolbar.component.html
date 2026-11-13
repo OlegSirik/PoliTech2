@@ -1,0 +1,32 @@
+<button class="tool" type="button" aria-label="Свернуть меню" (click)="menuToggle.emit()">
+  <mat-icon>menu</mat-icon>
+</button>
+
+<form class="search" (ngSubmit)="submitSearch()">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Поиск продукта</mat-label>
+    <input matInput [formControl]="search" placeholder="Код или название">
+    <button mat-icon-button matSuffix type="submit" aria-label="Найти">
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
+</form>
+
+<div class="spacer"></div>
+
+<pt-theme-toggle />
+
+@if (user(); as current) {
+  <span class="tenant">{{ current.tenant }}</span>
+  <button class="user" type="button" [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+    <span>{{ current.displayName }}</span>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item type="button" disabled>{{ current.role }}</button>
+    <button mat-menu-item type="button" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Выйти
+    </button>
+  </mat-menu>
+}

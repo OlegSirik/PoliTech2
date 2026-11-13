@@ -1,0 +1,47 @@
+<pt-page-header
+  title="Обзор"
+  subtitle="Продукты, линии бизнеса и калькуляторы читаются из PoliTechAPI через BFF.">
+</pt-page-header>
+
+<section class="stats">
+  <a class="stat pt-panel" routerLink="/products">
+    <mat-icon>inventory_2</mat-icon>
+    <span>Продукты</span>
+    <strong>{{ products().length }}</strong>
+  </a>
+  <a class="stat pt-panel" routerLink="/business-lines">
+    <mat-icon>account_tree</mat-icon>
+    <span>Линии бизнеса</span>
+    <strong>{{ lineCount() }}</strong>
+  </a>
+  <a class="stat pt-panel" routerLink="/calculators">
+    <mat-icon>calculate</mat-icon>
+    <span>Калькуляторы</span>
+    <strong>пакеты</strong>
+  </a>
+  <a class="stat pt-panel" routerLink="/demo">
+    <mat-icon>widgets</mat-icon>
+    <span>Компоненты</span>
+    <strong>7</strong>
+  </a>
+</section>
+
+<section class="recent pt-panel">
+  <header>
+    <h2>Продукты</h2>
+    <a routerLink="/products">Все продукты</a>
+  </header>
+  <ul>
+    @for (product of products().slice(0, 6); track product.id) {
+      <li>
+        <a [routerLink]="['/products', product.id, 'versions', versionOf(product)]">
+          <span class="code">{{ product.code }}</span>
+          <span>
+            <strong>{{ product.name }}</strong>
+            <small>{{ product.lob }} · dev {{ product.devVersionNo ?? '—' }} · прод {{ product.prodVersionNo ?? '—' }}</small>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+</section>

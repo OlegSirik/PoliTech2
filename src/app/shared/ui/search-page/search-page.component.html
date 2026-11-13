@@ -1,0 +1,85 @@
+<pt-page-header
+  [title]="title()"
+  [subtitle]="subtitle()"
+  [breadcrumbs]="breadcrumbs()"
+  [actions]="actions()"
+  (action)="action.emit($event)">
+</pt-page-header>
+
+<section class="search pt-panel">
+  <div class="search__filters">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search__query">
+      <mat-label>Поиск</mat-label>
+      <input
+        matInput
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+        [placeholder]="queryPlaceholder()">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <ng-content select="[ptSearchFilters]" />
+  </div>
+
+  @if (loading()) {
+    <div class="search__empty">
+      <p>Загрузка…</p>
+    </div>
+  } @else if (rows().length) {
+    <div class="search__table-wrap">
+      <table class="search__table">
+        <thead>
+          <tr>
+            @for (column of columns(); track column.key) {
+              <th [style.width]="column.width">{{ column.label }}</th>
+            }
+            @if (rowActions().length) {
+              <th class="search__actions-col"></th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr [class.is-interactive]="interactive()" (click)="onRowClick(row)">
+              @for (column of columns(); track column.key) {
+                <td>
+                  @if (column.kind === 'status') {
+                    <span
+                      class="pt-status"
+                      [class.is-published]="cell(row, column) === 'Опубликован'"
+                      [class.is-draft]="cell(row, column) === 'Черновик'"
+                      [class.is-archived]="cell(row, column) === 'Архив'">{{ cell(row, column) }}</span>
+                  } @else {
+                    {{ cell(row, column) }}
+                  }
+                </td>
+              }
+              @if (rowActions().length) {
+                <td class="search__actions">
+                  @for (item of rowActions(); track item.id) {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [matTooltip]="item.label"
+                      [attr.aria-label]="item.label"
+                      [class.is-danger]="item.tone === 'danger'"
+                      (click)="$event.stopPropagation(); rowAction.emit({ id: item.id, row })">
+                      <mat-icon>{{ item.icon }}</mat-icon>
+                    </button>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="search__empty">
+      <mat-icon>search_off</mat-icon>
+      <p>Ничего не найдено</p>
+      <span>Измените запрос или сбросьте фильтр.</span>
+    </div>
+  }
+
+  <footer class="search__footer">{{ countLabel(rows().length) }}</footer>
+</section>

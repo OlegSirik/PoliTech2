@@ -1,0 +1,12 @@
+services:
+  politech2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POLITECH_API_URL: ${POLITECH_API_URL:-http://host.docker.internal:8080}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8088:8091"
+      - "8091:8091"

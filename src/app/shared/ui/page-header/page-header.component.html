@@ -1,0 +1,53 @@
+<header class="page-header">
+  @if (breadcrumbs().length) {
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      @for (crumb of breadcrumbs(); track crumb.label; let last = $last) {
+        @if (!last && crumb.route) {
+          <a [routerLink]="crumb.route">{{ crumb.label }}</a>
+        } @else {
+          <span [attr.aria-current]="last ? 'page' : null">{{ crumb.label }}</span>
+        }
+        @if (!last) {
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        }
+      }
+    </nav>
+  }
+
+  <div class="page-header__row">
+    <div class="page-header__text">
+      <h1>{{ title() }}</h1>
+      @if (subtitle()) {
+        <p>{{ subtitle() }}</p>
+      }
+    </div>
+    <div class="page-header__actions">
+    @if (notice()) {
+      <span class="page-header__notice">{{ notice() }}</span>
+    }
+    <ng-content select="[ptHeaderActions]" />
+    @for (item of actions(); track item.id) {
+      @if (item.tone === 'ghost') {
+        <button mat-stroked-button type="button" (click)="action.emit(item.id)">
+          @if (item.icon) {
+            <mat-icon>{{ item.icon }}</mat-icon>
+          }
+          {{ item.label }}
+        </button>
+      } @else {
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [class.pt-btn-accent]="item.tone === 'accent'"
+          (click)="action.emit(item.id)">
+          @if (item.icon) {
+            <mat-icon>{{ item.icon }}</mat-icon>
+          }
+          {{ item.label }}
+        </button>
+      }
+    }
+  </div>
+  </div>
+</header>

@@ -1,0 +1,117 @@
+@if (missing()) {
+  <pt-edit-page
+    title="Продукт не найден"
+    subtitle="В каталоге сессии нет такого кода."
+    [breadcrumbs]="breadcrumbs()"
+    (save)="cancel()"
+    (cancel)="cancel()"
+    saveLabel="К списку">
+    <section class="sheet pt-panel">
+      <p>Вернитесь к поиску и выберите продукт из списка.</p>
+    </section>
+  </pt-edit-page>
+} @else {
+  <pt-edit-page
+    [title]="heading()"
+    subtitle="Основные сведения продукта. Панель справа показывает контекст выбранной карточки."
+    [breadcrumbs]="breadcrumbs()"
+    [dirty]="dirty()"
+    [saving]="saving()"
+    (save)="save()"
+    (cancel)="cancel()">
+    <button ptHeaderActions mat-stroked-button type="button" (click)="drawerOpen.set(!drawerOpen())">
+      {{ drawerOpen() ? 'Скрыть свойства' : 'Свойства' }}
+    </button>
+
+    <section class="sheet pt-panel">
+      <h2>Основные сведения</h2>
+      <div class="pt-field-grid" [formGroup]="form">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Код</mat-label>
+          <input matInput formControlName="code" autocomplete="off">
+          @if (form.controls.code.touched && form.controls.code.invalid) {
+            <mat-error>Укажите код</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Версия</mat-label>
+          <input matInput formControlName="version">
+          @if (form.controls.version.touched && form.controls.version.invalid) {
+            <mat-error>Укажите версию</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Название</mat-label>
+          <input matInput formControlName="name">
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <mat-error>Укажите название</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Линия бизнеса</mat-label>
+          <input matInput formControlName="line">
+          @if (form.controls.line.touched && form.controls.line.invalid) {
+            <mat-error>Укажите линию</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Статус</mat-label>
+          <mat-select formControlName="status">
+            @for (item of statuses; track item) {
+              <mat-option [value]="item">{{ item }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Действует с</mat-label>
+          <input matInput type="date" formControlName="effectiveFrom">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Действует по</mat-label>
+          <input matInput type="date" formControlName="effectiveTo">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Валюта</mat-label>
+          <mat-select formControlName="currency">
+            @for (item of currencies; track item) {
+              <mat-option [value]="item">{{ item }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="span-2" appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Описание</mat-label>
+          <textarea matInput rows="4" formControlName="description"></textarea>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <pt-property-drawer
+      [open]="drawerOpen()"
+      title="Свойства"
+      [subtitle]="details().code || 'Новая карточка'"
+      (closed)="drawerOpen.set(false)">
+      <dl class="props">
+        <div>
+          <dt>Код</dt>
+          <dd>{{ details().code || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Линия</dt>
+          <dd>{{ details().line || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Версия</dt>
+          <dd>{{ details().version || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Статус</dt>
+          <dd>{{ details().status }}</dd>
+        </div>
+        <div>
+          <dt>Валюта</dt>
+          <dd>{{ details().currency }}</dd>
+        </div>
+      </dl>
+    </pt-property-drawer>
+  </pt-edit-page>
+}

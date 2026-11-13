@@ -1,0 +1,33 @@
+<pt-search-page
+  title="Правила"
+  subtitle="CEL-правила тенанта. Список и карточка идут через BFF в PoliTechAPI."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Правила' }]"
+  [columns]="columns"
+  [rows]="rows()"
+  [actions]="actions"
+  [rowActions]="rowActions"
+  [loading]="loading()"
+  queryPlaceholder="Код, название или текст"
+  [(query)]="query"
+  (action)="onAction($event)"
+  (rowAction)="open($event.row)"
+  (rowClick)="open($event)">
+  <mat-form-field ptSearchFilters class="filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Тип правила</mat-label>
+    <mat-select [ngModel]="ruleType()" (ngModelChange)="ruleType.set($event); load()">
+      <mat-option value="">Все</mat-option>
+      @for (item of ruleTypes; track item) {
+        <mat-option [value]="item">{{ item }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field ptSearchFilters class="filter" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Область</mat-label>
+    <mat-select [ngModel]="scopeType()" (ngModelChange)="scopeType.set($event); load()">
+      <mat-option value="">Все</mat-option>
+      @for (item of scopeTypes; track item) {
+        <mat-option [value]="item">{{ item }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</pt-search-page>

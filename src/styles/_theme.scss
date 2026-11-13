@@ -1,0 +1,214 @@
+@use '@angular/material' as mat;
+
+// Stock palettes only seed the Material system. Visible color, type, density,
+// radius and control size are replaced by PoliTech tokens below.
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$cyan-palette,
+      tertiary: mat.$orange-palette,
+    ),
+    typography: (
+      plain-family: ("Manrope", "Segoe UI", sans-serif),
+      brand-family: ("Manrope", "Segoe UI", sans-serif),
+      bold-weight: 700,
+      medium-weight: 600,
+      regular-weight: 400,
+    ),
+    density: (
+      scale: -2,
+    ),
+  ));
+}
+
+html {
+  --mat-sys-primary: var(--pt-color-primary);
+  --mat-sys-on-primary: var(--pt-color-on-primary);
+  --mat-sys-primary-container: var(--pt-color-primary-container);
+  --mat-sys-on-primary-container: var(--pt-color-on-primary-container);
+  --mat-sys-secondary: var(--pt-color-secondary);
+  --mat-sys-on-secondary: var(--pt-color-on-primary);
+  --mat-sys-secondary-container: var(--pt-color-secondary-container);
+  --mat-sys-on-secondary-container: var(--pt-color-ink);
+  --mat-sys-tertiary: var(--pt-color-accent);
+  --mat-sys-on-tertiary: var(--pt-color-on-accent);
+  --mat-sys-tertiary-container: var(--pt-color-accent-container);
+  --mat-sys-on-tertiary-container: var(--pt-color-on-accent-container);
+  --mat-sys-error: var(--pt-color-danger);
+  --mat-sys-on-error: var(--pt-color-on-danger);
+  --mat-sys-error-container: var(--pt-color-danger-container);
+  --mat-sys-on-error-container: var(--pt-color-danger);
+  --mat-sys-surface: var(--pt-color-surface);
+  --mat-sys-surface-bright: var(--pt-color-surface-raised);
+  --mat-sys-surface-dim: var(--pt-color-canvas);
+  --mat-sys-surface-container-lowest: var(--pt-color-surface-raised);
+  --mat-sys-surface-container-low: var(--pt-color-surface);
+  --mat-sys-surface-container: var(--pt-color-surface-muted);
+  --mat-sys-surface-container-high: var(--pt-color-surface-muted);
+  --mat-sys-surface-container-highest: var(--pt-color-surface-high);
+  --mat-sys-on-surface: var(--pt-color-ink);
+  --mat-sys-on-surface-variant: var(--pt-color-ink-soft);
+  --mat-sys-inverse-surface: var(--pt-color-sidebar);
+  --mat-sys-inverse-on-surface: var(--pt-color-sidebar-text);
+  --mat-sys-outline: var(--pt-color-line-strong);
+  --mat-sys-outline-variant: var(--pt-color-line);
+  --mat-sys-background: var(--pt-color-canvas);
+  --mat-sys-on-background: var(--pt-color-ink);
+  --mat-sys-shadow: color-mix(in srgb, var(--pt-color-ink) 18%, transparent);
+
+  --mat-sys-corner-extra-small: var(--pt-radius-xs);
+  --mat-sys-corner-small: var(--pt-radius-sm);
+  --mat-sys-corner-medium: var(--pt-radius-md);
+  --mat-sys-corner-large: var(--pt-radius-lg);
+  --mat-sys-corner-extra-large: var(--pt-radius-lg);
+  --mat-sys-corner-full: var(--pt-radius-pill);
+
+  --mat-sys-body-small-size: var(--pt-font-xs);
+  --mat-sys-body-medium-size: var(--pt-font-md);
+  --mat-sys-body-large-size: var(--pt-font-lg);
+  --mat-sys-title-medium-size: var(--pt-font-lg);
+  --mat-sys-title-large-size: var(--pt-font-xl);
+  --mat-sys-headline-small-size: var(--pt-font-xl);
+  --mat-sys-label-medium-size: var(--pt-font-sm);
+  --mat-sys-label-large-size: var(--pt-font-md);
+
+  --mat-sys-body-small-font: var(--pt-font-family);
+  --mat-sys-body-medium-font: var(--pt-font-family);
+  --mat-sys-body-large-font: var(--pt-font-family);
+  --mat-sys-title-medium-font: var(--pt-font-family);
+  --mat-sys-title-large-font: var(--pt-font-family);
+  --mat-sys-headline-small-font: var(--pt-font-family);
+  --mat-sys-label-medium-font: var(--pt-font-family);
+  --mat-sys-label-large-font: var(--pt-font-family);
+
+  --mdc-outlined-text-field-container-shape: var(--pt-radius-sm);
+  --mdc-outlined-text-field-outline-color: var(--pt-color-line-strong);
+  --mdc-outlined-text-field-hover-outline-color: var(--pt-color-primary);
+  --mdc-outlined-text-field-focus-outline-color: var(--pt-color-primary);
+  --mdc-outlined-text-field-error-outline-color: var(--pt-color-danger);
+  --mdc-outlined-text-field-error-focus-outline-color: var(--pt-color-danger);
+  --mdc-outlined-text-field-input-text-color: var(--pt-color-ink);
+  --mdc-outlined-text-field-label-text-color: var(--pt-color-ink-soft);
+  --mdc-outlined-text-field-focus-label-text-color: var(--pt-color-primary);
+  --mdc-outlined-text-field-error-label-text-color: var(--pt-color-danger);
+  --mdc-outlined-text-field-caret-color: var(--pt-color-primary);
+  --mdc-outlined-text-field-disabled-input-text-color: color-mix(in srgb, var(--pt-color-ink) 45%, transparent);
+  --mdc-outlined-text-field-disabled-outline-color: var(--pt-color-line);
+  --mdc-outlined-text-field-disabled-label-text-color: var(--pt-color-ink-soft);
+
+  --mdc-filled-button-container-shape: var(--pt-radius-sm);
+  --mdc-outlined-button-container-shape: var(--pt-radius-sm);
+  --mdc-text-button-container-shape: var(--pt-radius-sm);
+  --mdc-protected-button-container-shape: var(--pt-radius-sm);
+
+  --mdc-filled-button-container-color: var(--pt-color-primary);
+  --mdc-filled-button-label-text-color: var(--pt-color-on-primary);
+  --mdc-filled-button-disabled-container-color: var(--pt-color-surface-muted);
+  --mdc-filled-button-disabled-label-text-color: var(--pt-color-ink-soft);
+
+  --mdc-outlined-button-outline-color: var(--pt-color-line-strong);
+  --mdc-outlined-button-label-text-color: var(--pt-color-primary);
+
+  --mat-form-field-container-text-size: var(--pt-font-md);
+  --mat-form-field-container-height: var(--pt-field-height);
+  --mat-form-field-outlined-label-text-populated-size: var(--pt-font-xs);
+}
+
+.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content.mat-mdc-dialog-content {
+  padding-top: 4px;
+}
+
+.mat-mdc-form-field-infix {
+  min-height: var(--pt-field-height) !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button-base {
+  --mdc-typography-button-font-size: var(--pt-font-md);
+  --mdc-typography-button-font-weight: var(--pt-weight-semibold);
+  --mdc-typography-button-letter-spacing: 0;
+  height: var(--pt-control-height);
+  border-radius: var(--pt-radius-sm) !important;
+}
+
+.mat-mdc-unelevated-button:not(:disabled):hover {
+  background: var(--pt-color-primary-hover);
+}
+
+.mat-mdc-outlined-button:not(:disabled):hover {
+  background: var(--pt-state-hover);
+}
+
+.pt-btn-accent.mat-mdc-unelevated-button {
+  --mdc-filled-button-container-color: var(--pt-color-accent);
+  --mdc-filled-button-label-text-color: var(--pt-color-on-accent);
+}
+
+.pt-btn-accent.mat-mdc-unelevated-button:not(:disabled):hover {
+  background: var(--pt-color-accent-hover);
+}
+
+.pt-btn-agent.mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color: var(--pt-color-line-strong);
+  --mdc-outlined-button-label-text-color: var(--pt-color-ink);
+}
+
+.pt-btn-agent.mat-mdc-outlined-button .mat-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: var(--pt-space-1);
+  font-size: 18px;
+}
+
+.pt-btn-agent.is-open {
+  background: var(--pt-state-selected);
+}
+
+.mat-mdc-button-base:disabled,
+.mat-mdc-form-field.mat-form-field-disabled {
+  opacity: 1;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing {
+  border-color: var(--pt-color-danger) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-width: 2px;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline__leading,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline__notch,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline__trailing {
+  border-color: var(--pt-color-primary);
+}
+
+.mat-mdc-menu-panel {
+  border-radius: var(--pt-radius-md) !important;
+  border: 1px solid var(--pt-color-line);
+  box-shadow: var(--pt-shadow-md) !important;
+}
+
+.mat-mdc-snack-bar-container.pt-snack-success {
+  --mdc-snackbar-container-color: var(--pt-color-primary);
+  --mdc-snackbar-supporting-text-color: var(--pt-color-on-primary);
+}
+
+.mat-mdc-snack-bar-container.pt-snack-error {
+  --mdc-snackbar-container-color: var(--pt-color-danger);
+  --mdc-snackbar-supporting-text-color: var(--pt-color-on-danger);
+}

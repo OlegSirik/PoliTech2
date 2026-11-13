@@ -1,0 +1,162 @@
+<pt-page-header
+  [title]="line.mpName || 'Новая линия бизнеса'"
+  subtitle="Документ сохраняется в PoliTechAPI целиком."
+  [breadcrumbs]="[{ label: 'Линии бизнеса', route: '/business-lines' }, { label: line.mpCode || 'Новая' }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-stroked-button type="button" (click)="exportFile()">В файл</button>
+  <button ptHeaderActions mat-stroked-button type="button" (click)="importFile()">Из файла</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<mat-tab-group class="tabs">
+  <mat-tab label="Основное">
+    <div class="stack">
+      <section class="panel pt-panel">
+        <h2>Наименование линии</h2>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Код</mat-label>
+            <input matInput [(ngModel)]="line.mpCode" [readonly]="!isNew()" (ngModelChange)="touch()">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Название</mat-label>
+            <input matInput [(ngModel)]="line.mpName" (ngModelChange)="touch()">
+          </mat-form-field>
+        </div>
+      </section>
+      <section class="panel pt-panel">
+        <h2>Схема данных</h2>
+        <pt-schema-tree
+          [vars]="schemaTreeVars()"
+          [rootCode]="null"
+          actions="line"
+          (edit)="editVar($event)"
+          (remove)="hideSchemaVar($event)"
+          (restore)="restoreSchemaVar($event)">
+        </pt-schema-tree>
+      </section>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Покрытия">
+    <div class="stack">
+      @if (agentOpen()) {
+        <section class="panel pt-panel">
+          <h2>AI-агент</h2>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Команда для AI-агента</mat-label>
+            <textarea matInput rows="3" [(ngModel)]="coverPrompt" placeholder="Например: добавь покрытия смерть и инвалидность с рисками НС"></textarea>
+          </mat-form-field>
+          @if (!llmReady()) {
+            <p class="notice">LLM не настроен или отключён. Настройте интеграцию в разделе Tenants → LLM.</p>
+          }
+          <div class="toolbar toolbar-end">
+            <button mat-flat-button color="primary" type="button" [disabled]="!llmReady() || asking() || !coverPrompt.trim()" (click)="askCovers()">
+              {{ asking() ? 'Запрос…' : 'Выполнить' }}
+            </button>
+            <button mat-stroked-button type="button" (click)="agentOpen.set(false)">Закрыть</button>
+          </div>
+        </section>
+      }
+      <section class="panel pt-panel">
+        <div class="toolbar">
+          <h2>Покрытия</h2>
+          <button mat-stroked-button class="pt-btn-agent" type="button" [class.is-open]="agentOpen()" (click)="agentOpen.set(!agentOpen())">
+            <mat-icon>smart_toy</mat-icon>
+            AI-агент
+          </button>
+          <pt-action-button kind="add" (pressed)="addCover()" />
+        </div>
+        <table>
+          <thead><tr><th>Код</th><th>Название</th><th>Риски</th><th></th></tr></thead>
+          <tbody>
+            @for (item of line.mpCovers; track item.coverCode) {
+              <tr (click)="editCover(item)">
+                <td>{{ item.coverCode }}</td><td>{{ item.coverName }}</td><td>{{ item.risks }}</td>
+                <td class="row-actions">
+                  <pt-action-button kind="edit" (pressed)="editCover(item)" />
+                  <pt-action-button kind="delete" (pressed)="deleteCover(item)" />
+                </td>
+              </tr>
+            } @empty { <tr><td colspan="4" class="state">Покрытий нет</td></tr> }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Файлы">
+    <section class="panel pt-panel">
+      <div class="toolbar">
+        <h2 class="section-title">Файлы</h2>
+        <pt-action-button kind="add" (pressed)="addFile()" />
+      </div>
+      <table>
+        <thead><tr><th>Код</th><th>Название</th><th></th></tr></thead>
+        <tbody>
+          @for (item of line.mpFiles; track item.fileCode) {
+            <tr (click)="editFile(item)">
+              <td>{{ item.fileCode }}</td><td>{{ item.fileName }}</td>
+              <td class="row-actions">
+                <pt-action-button kind="edit" (pressed)="editFile(item)" />
+                <pt-action-button kind="delete" (pressed)="deleteFile(item)" />
+              </td>
+            </tr>
+          } @empty { <tr><td colspan="3" class="state">Файлов нет</td></tr> }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Строки">
+    <section class="panel pt-panel">
+      <div class="toolbar">
+        <h2 class="section-title">Строки</h2>
+        <pt-action-button kind="add" (pressed)="addVar(true)" />
+      </div>
+      <table>
+        <thead><tr><th>Код</th><th>Название</th><th>Значение</th><th></th></tr></thead>
+        <tbody>
+          @for (item of textVars(); track item.varCode) {
+            <tr (click)="editVar(item)">
+              <td>{{ item.varCode }}</td><td>{{ item.varName }}</td><td>{{ item.varValue }}</td>
+              <td class="row-actions">
+                <pt-action-button kind="edit" (pressed)="editVar(item)" />
+                <pt-action-button kind="delete" (pressed)="deleteVar(item)" />
+              </td>
+            </tr>
+          } @empty { <tr><td colspan="4" class="state">Строк нет</td></tr> }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+
+  <mat-tab label="Тарифные таблицы">
+    <pt-tariff-tables [tables]="line.mpCoefficients" [vars]="line.mpVars" (changed)="onTariffTables($event)" />
+  </mat-tab>
+
+  <mat-tab label="Шаблоны формул">
+    <section class="panel pt-panel">
+      <h2 class="section-title">Шаблоны формул</h2>
+      <p class="hint">Шаблон создаётся из сохранённого калькулятора пакета. Здесь его можно переименовать или удалить.</p>
+      <table>
+        <thead><tr><th>Название</th><th>Строки</th><th></th></tr></thead>
+        <tbody>
+          @for (item of templates; track item.calculatorId) {
+            <tr>
+              <td>{{ item.calculatorName || item.calculatorId }}</td>
+              <td>{{ item.lines?.length || 0 }}</td>
+              <td>
+                <button mat-stroked-button type="button" (click)="renameTemplate(item)">Имя</button>
+                <button mat-icon-button type="button" class="danger" (click)="deleteTemplate(item)"><mat-icon>delete</mat-icon></button>
+              </td>
+            </tr>
+          } @empty { <tr><td colspan="3" class="state">Шаблонов нет</td></tr> }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,23 @@
+<pt-page-header
+  [title]="title()"
+  [subtitle]="subtitle()"
+  [breadcrumbs]="breadcrumbs()"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <div class="edit__forward" ngProjectAs="[ptHeaderActions]">
+    <ng-content select="[ptHeaderActions]" />
+  </div>
+  <button ptHeaderActions mat-stroked-button type="button" (click)="cancel.emit()" [disabled]="saving()">
+    Отмена
+  </button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" (click)="save.emit()" [disabled]="saving()">
+    <mat-icon>save</mat-icon>
+    {{ saving() ? 'Сохранение…' : saveLabel() }}
+  </button>
+</pt-page-header>
+
+<div class="edit__body">
+  <div class="edit__main">
+    <ng-content />
+  </div>
+  <ng-content select="pt-property-drawer" />
+</div>

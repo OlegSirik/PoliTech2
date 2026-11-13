@@ -1,0 +1,133 @@
+<pt-page-header
+  title="Демо компонентов"
+  subtitle="Собственные токены PoliTech2 и базовые компоненты платформы. Material здесь подчинён этим токенам.">
+</pt-page-header>
+
+<section class="block">
+  <h2>Цвет</h2>
+  <div class="swatches">
+    @for (item of swatches; track item.token) {
+      <article class="swatch pt-panel">
+        <span [style.background]="'var(' + item.token + ')'"></span>
+        <strong>{{ item.name }}</strong>
+        <code>{{ item.token }}</code>
+      </article>
+    }
+  </div>
+</section>
+
+<section class="block">
+  <h2>Типографика</h2>
+  <div class="type pt-panel">
+    <p class="type-3xl">Заголовок страницы</p>
+    <p class="type-xl">Заголовок секции</p>
+    <p class="type-md">Основной текст интерфейса, 14px, Manrope.</p>
+    <p class="type-xs">Подпись поля и служебный текст</p>
+    <p class="type-code">JSON и код — Consolas</p>
+  </div>
+</section>
+
+<section class="block">
+  <h2>Кнопки и состояния</h2>
+  <div class="states pt-panel">
+    <button mat-flat-button color="primary" type="button">Основная</button>
+    <button mat-flat-button class="pt-btn-accent" type="button">Акцент</button>
+    <button mat-stroked-button type="button">Вторичная</button>
+    <button mat-button type="button">Текстовая</button>
+    <button mat-flat-button color="primary" type="button" disabled>Недоступна</button>
+    <pt-theme-toggle />
+    <button mat-stroked-button class="pt-btn-agent" type="button"><mat-icon>smart_toy</mat-icon>AI-агент</button>
+    <pt-action-button kind="add" />
+    <pt-action-button kind="edit" />
+    <pt-action-button kind="delete" />
+    <span class="pt-status is-published">Опубликован</span>
+    <span class="pt-status is-draft">Черновик</span>
+    <span class="pt-status is-archived">Архив</span>
+    <span class="state-selected">Выбрано</span>
+  </div>
+</section>
+
+<section class="block" [formGroup]="form">
+  <h2>Поля</h2>
+  <div class="pt-panel fields">
+    <div class="pt-field-grid">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Обычное</mat-label>
+        <input matInput formControlName="name">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Недоступное</mat-label>
+        <input matInput formControlName="code">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Ошибка</mat-label>
+        <input matInput formControlName="email">
+        @if (form.controls.email.invalid) {
+          <mat-error>Нужен корректный email</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Список</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="Черновик">Черновик</mat-option>
+          <mat-option value="Опубликован">Опубликован</mat-option>
+          <mat-option value="Архив">Архив</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="choices">
+      <mat-radio-group formControlName="channel">
+        <mat-radio-button value="agent">Агент</mat-radio-button>
+        <mat-radio-button value="direct">Прямые</mat-radio-button>
+      </mat-radio-group>
+      <mat-checkbox formControlName="agree">Согласован</mat-checkbox>
+      <mat-slide-toggle formControlName="active">Активен</mat-slide-toggle>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <h2>SearchPageComponent</h2>
+  <pt-search-page
+    title="Пример поиска"
+    subtitle="Заголовок, фильтр, таблица, пустое состояние и действия строки."
+    [columns]="columns"
+    [rows]="visibleRows()"
+    [actions]="actions"
+    [rowActions]="rowActions"
+    [(query)]="query"
+    (action)="onSearchAction($event)"
+    (rowAction)="cleared.set(true)">
+  </pt-search-page>
+  @if (!visibleRows().length) {
+    <button class="restore" mat-stroked-button type="button" (click)="cleared.set(false)">Вернуть строки</button>
+  }
+</section>
+
+<section class="block">
+  <h2>EditPageComponent и PropertyDrawerComponent</h2>
+  <pt-edit-page
+    title="Карточка примера"
+    subtitle="Шапка с крошками, признак изменений, сохранение и контекстная панель."
+    [breadcrumbs]="[{ label: 'Демо', route: '/demo' }, { label: 'Карточка' }]"
+    [dirty]="dirty()"
+    [saving]="false"
+    (save)="saveDemo()"
+    (cancel)="cancelDemo()">
+    <section class="pt-panel sheet">
+      <p>Основная колонка редактирования. Панель справа закрывается крестиком и открывается снова кнопкой.</p>
+      <button mat-stroked-button type="button" (click)="drawerOpen.set(true)">Открыть свойства</button>
+    </section>
+    <pt-property-drawer
+      [open]="drawerOpen()"
+      title="Свойства"
+      subtitle="Контекст объекта"
+      (closed)="drawerOpen.set(false)">
+      <dl class="props">
+        <div><dt>Код</dt><dd>ACC</dd></div>
+        <div><dt>Поле</dt><dd>36px</dd></div>
+        <div><dt>Радиус</dt><dd>6px</dd></div>
+      </dl>
+    </pt-property-drawer>
+  </pt-edit-page>
+</section>

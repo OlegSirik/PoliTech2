@@ -1,0 +1,9 @@
+<div class="shell">
+  <pt-app-sidebar [collapsed]="collapsed()" (collapsedChange)="setCollapsed($event)" />
+  <div class="shell__main">
+    <pt-app-toolbar (menuToggle)="setCollapsed(!collapsed())" />
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
