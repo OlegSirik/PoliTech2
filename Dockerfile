@@ -18,7 +18,7 @@ WORKDIR /app
 RUN apk add --no-cache curl
 COPY --from=bff /workspace/build/libs/politech2-bff.jar /app/app.jar
 COPY --from=ui /app/dist/politech2/browser /app/static
-ENV PORT=8091
+ENV PORT=8088
 ENV POLITECH_API_URL=http://host.docker.internal:8080
-EXPOSE 8091
+EXPOSE 8088
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

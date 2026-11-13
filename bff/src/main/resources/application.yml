@@ -4,7 +4,7 @@ spring:
       add-mappings: false
 
 server:
-  port: ${PORT:8091}
+  port: ${PORT:8088}
   servlet:
     session:
       timeout: ${SESSION_TIMEOUT:8h}

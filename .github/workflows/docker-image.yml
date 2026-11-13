@@ -73,7 +73,8 @@ jobs:
             cp /tmp/politech2-deploy/docker-compose.published.yml "$HOME/PoliTech2/docker-compose.published.yml"
             cd "$HOME/PoliTech2"
             docker pull ${{ env.IMAGE }}:latest
-            docker compose -f docker-compose.published.yml up -d
+            docker compose -f docker-compose.published.yml up -d --force-recreate
             sleep 20
             docker compose -f docker-compose.published.yml ps
+            echo "Frontend: http://127.0.0.1:8088"
             docker image prune -f
