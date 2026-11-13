@@ -5,12 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: write
-
 env:
-  IMAGE: ghcr.io/olegsirik/politech2
+  REGISTRY: docker.io
+  IMAGE: olegsirik/politech2
 
 jobs:
   build-and-push:
@@ -24,10 +21,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push image
         uses: docker/build-push-action@v5
@@ -65,22 +63,17 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: GHCR_TOKEN
           script: |
             set -e
             mkdir -p "$HOME/PoliTech2"
             cp /tmp/politech2-deploy/docker-compose.published.yml "$HOME/PoliTech2/docker-compose.published.yml"
             cd "$HOME/PoliTech2"
-            printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull ${{ env.IMAGE }}:latest
             docker compose -f docker-compose.published.yml up -d
-            docker logout ghcr.io
             sleep 20
             docker compose -f docker-compose.published.yml ps
             docker image prune -f

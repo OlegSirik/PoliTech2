@@ -1,6 +1,6 @@
 services:
   politech2:
-    image: ghcr.io/olegsirik/politech2:latest
+    image: olegsirik/politech2:latest
     environment:
       POLITECH_API_URL: ${POLITECH_API_URL:-http://host.docker.internal:8080}
     extra_hosts:
