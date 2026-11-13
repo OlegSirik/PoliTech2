@@ -64,9 +64,8 @@
       <section class="panel pt-panel">
         <div class="toolbar">
           <h2>Покрытия</h2>
-          <button mat-stroked-button class="pt-btn-agent" type="button" [class.is-open]="agentOpen()" (click)="agentOpen.set(!agentOpen())">
+          <button mat-stroked-button class="pt-btn-agent" type="button" matTooltip="AI-агент" aria-label="AI-агент" [class.is-open]="agentOpen()" (click)="agentOpen.set(!agentOpen())">
             <mat-icon>smart_toy</mat-icon>
-            AI-агент
           </button>
           <pt-action-button kind="add" (pressed)="addCover()" />
         </div>

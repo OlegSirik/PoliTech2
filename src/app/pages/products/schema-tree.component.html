@@ -31,10 +31,10 @@
         <td class="actions">
           @if (actions() === 'product') {
             <button mat-icon-button type="button" matTooltip="Тарифный фактор" [disabled]="locked()" (click)="flag.emit({ variable: row.node.source, field: 'isTarifFactor' })">
-              <mat-icon [class.is-on]="row.node.source.isTarifFactor">calculate</mat-icon>
+              <mat-icon class="flag" [class.is-on]="row.node.source.isTarifFactor">calculate</mat-icon>
             </button>
             <button mat-icon-button type="button" matTooltip="Обязательность для ввода" [disabled]="locked()" (click)="flag.emit({ variable: row.node.source, field: 'isOptional' })">
-              <mat-icon [class.is-on]="row.node.source.isOptional">star</mat-icon>
+              <mat-icon class="flag" [class.is-on]="!row.node.source.isOptional">star</mat-icon>
             </button>
           }
           @if (row.node.source.isDeleted) {

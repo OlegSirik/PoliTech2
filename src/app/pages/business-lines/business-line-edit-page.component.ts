@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { bffErrorMessage } from '../../core/bff/bff-error';
 import { CatalogApiService } from '../../core/api/catalog-api.service';
 import {
@@ -40,6 +41,7 @@ import { RuleAssistService } from '../../core/api/rule-assist.service';
     MatInputModule,
     MatSnackBarModule,
     MatTabsModule,
+    MatTooltipModule,
     PageHeaderComponent,
     SchemaTreeComponent,
     ActionButtonComponent,

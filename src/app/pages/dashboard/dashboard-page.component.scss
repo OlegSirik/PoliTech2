@@ -48,15 +48,22 @@
 }
 
 .recent ul {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.recent li,
 .recent a {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto;
-  gap: var(--pt-space-3);
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+}
+
+.recent a {
+  gap: var(--pt-space-4);
   align-items: center;
   padding: var(--pt-space-3) var(--pt-space-4);
   color: inherit;
@@ -74,6 +81,7 @@
 .recent .code {
   font-weight: var(--pt-weight-bold);
   color: var(--pt-color-primary);
+  white-space: nowrap;
 }
 
 .recent small {
@@ -92,7 +100,9 @@
 }
 
 @media (max-width: 640px) {
+  .recent ul,
+  .recent li,
   .recent a {
-    grid-template-columns: 1fr;
+    display: block;
   }
 }

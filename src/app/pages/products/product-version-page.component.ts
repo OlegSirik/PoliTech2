@@ -22,6 +22,7 @@ import {
   PackageFile,
   PolicyForm,
   PolicyVar,
+  ProductCelRule,
   ProductCover,
   ProductPackage,
   ProductVersion,
@@ -30,6 +31,7 @@ import {
   normalizeProduct,
 } from '../../core/api/catalog.models';
 import { downloadJson, pickJsonFile } from '../../core/api/json-file';
+import { ActionButtonComponent } from '../../shared/ui/action-button/action-button.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { FieldsDialogComponent } from '../../shared/ui/fields-dialog/fields-dialog.component';
 import { SchemaTreeComponent } from './schema-tree.component';
@@ -50,6 +52,7 @@ import { SchemaVarDialogComponent } from './schema-var-dialog.component';
     MatTabsModule,
     MatTooltipModule,
     PageHeaderComponent,
+    ActionButtonComponent,
     SchemaTreeComponent,
   ],
   templateUrl: './product-version-page.component.html',
@@ -368,6 +371,101 @@ export class ProductVersionPageComponent implements OnInit {
     });
   }
 
+  protected readonly waitingTypes = ['RANGE', 'LIST', 'NEXT_MONTH'];
+  protected readonly termTypes = ['RANGE', 'LIST'];
+  protected readonly resetPolicies = ['YEARLY', 'MONTHLY'];
+  protected readonly celGroups = [
+    { ruleType: 'PRE_QUOTE_VALIDATION', title: 'PRE QUOTE' },
+    { ruleType: 'POST_QUOTE_VALIDATION', title: 'POST QUOTE' },
+    { ruleType: 'PRE_SAVE_VALIDATION', title: 'PRE SAVE' },
+    { ruleType: 'UNDERWRITING', title: 'UNDERWRITING' },
+  ];
+
+  protected validatorTypeLabel(code: string): string {
+    return ({
+      RANGE: 'Допустимый диапазон',
+      LIST: 'Список возможных значений',
+      NEXT_MONTH: '1 число следующего месяца',
+    } as Record<string, string>)[code] ?? code;
+  }
+
+  protected waitingHelp(code: string | undefined): string {
+    if (code === 'LIST') {
+      return 'Список возможных значений через запятую. Формат ISO 8601, например P14D — 14 дней, P2M — 2 месяца, P1Y — 1 год.';
+    }
+    if (code === 'RANGE') {
+      return 'Минимальное и максимальное количество дней между датой выпуска договора и датой начала действия. Формат ISO 8601, например P5D-P365D.';
+    }
+    if (code === 'NEXT_MONTH') {
+      return 'Договор начнет действовать с 1 числа следующего месяца.';
+    }
+    return '';
+  }
+
+  protected termHelp(code: string | undefined): string {
+    if (code === 'LIST') {
+      return 'Список возможных значений через запятую. Формат ISO 8601, например P14D — 14 дней, P2M — 2 месяца, P1Y — 1 год.';
+    }
+    if (code === 'RANGE') {
+      return 'Минимальный и максимальный срок действия договора. Пример: P5D–P365D — договор может действовать от 5 до 365 дней.';
+    }
+    return '';
+  }
+
+  protected celRules(ruleType: string): ProductCelRule[] {
+    return (this.product.celRules ?? [])
+      .filter((rule) => rule.ruleType === ruleType)
+      .sort((left, right) => (left.priority ?? 100) - (right.priority ?? 100));
+  }
+
+  protected addCelRule(ruleType: string): void {
+    this.openCelRule({ ruleType, priority: 100, code: '', name: '', llmText: '', message: '' }, (rule) => {
+      this.product.celRules = [...(this.product.celRules ?? []), rule];
+      this.touch();
+    });
+  }
+
+  protected editCelRule(rule: ProductCelRule): void {
+    this.openCelRule(rule, (updated) => {
+      this.product.celRules = (this.product.celRules ?? []).map((item) => item === rule ? { ...item, ...updated } : item);
+      this.touch();
+    });
+  }
+
+  protected deleteCelRule(rule: ProductCelRule): void {
+    this.product.celRules = (this.product.celRules ?? []).filter((item) => item !== rule);
+    this.touch();
+  }
+
+  private openCelRule(rule: ProductCelRule, apply: (rule: ProductCelRule) => void): void {
+    this.dialog.open(FieldsDialogComponent, {
+      width: '640px',
+      data: {
+        title: rule.code ? 'Редактировать правило' : 'Добавить правило',
+        fields: [
+          { key: 'code', label: 'Код' },
+          { key: 'name', label: 'Название' },
+          { key: 'priority', label: 'Приоритет', kind: 'number' },
+          { key: 'llmText', label: 'Текст правила', kind: 'textarea' },
+          { key: 'message', label: 'Текст ошибки', kind: 'textarea' },
+        ],
+        value: { ...rule },
+      },
+    }).afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+      apply({
+        ...rule,
+        code: String(result['code'] ?? ''),
+        name: String(result['name'] ?? ''),
+        priority: Number(result['priority'] ?? 100),
+        llmText: String(result['llmText'] ?? ''),
+        message: String(result['message'] ?? ''),
+      });
+    });
+  }
+
   protected addValidator(kind: 'quote' | 'save'): void {
     this.dialog.open(FieldsDialogComponent, {
       width: '520px',
@@ -544,10 +642,6 @@ export class ProductVersionPageComponent implements OnInit {
       this.snack.open('Запрос не является JSON', 'Закрыть', { duration: 2500 });
       return null;
     }
-  }
-
-  protected back(): void {
-    void this.router.navigate(['/products']);
   }
 
   private openVersion(saved: ProductVersion): void {

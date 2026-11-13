@@ -21,7 +21,7 @@
   padding: 4px 12px;
   border-bottom: 1px solid var(--pt-color-line);
   text-align: left;
-  vertical-align: middle;
+  vertical-align: bottom;
 }
 
 .tree th {
@@ -36,15 +36,20 @@
   text-align: end;
 }
 
-.actions {
-  width: 196px;
+.tree td.actions {
+  width: 1%;
   text-align: right;
   white-space: nowrap;
 }
 
+.tree td.actions button,
+.tree td.actions pt-action-button {
+  vertical-align: bottom;
+}
+
 .name {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 4px;
   min-height: 40px;
 }
@@ -59,8 +64,12 @@
   opacity: 0.55;
 }
 
-.is-on {
-  color: var(--pt-color-accent, #b8612d);
+.flag {
+  color: var(--pt-color-ink-soft);
+}
+
+.flag.is-on {
+  color: var(--pt-color-accent);
 }
 
 .danger {

@@ -3,9 +3,12 @@
   [subtitle]="'Версия ' + product.versionNo + ' · ' + (product.versionStatus || '—') + (locked ? ' · прод только для чтения' : '')"
   [breadcrumbs]="[{ label: 'Продукты', route: '/products' }, { label: product.code || 'Карточка' }]"
   [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
-  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
-  <button ptHeaderActions mat-stroked-button type="button" (click)="exportFile()">В файл</button>
-  <button ptHeaderActions mat-stroked-button type="button" [disabled]="locked" (click)="importFile()">Из файла</button>
+  <button ptHeaderActions mat-icon-button type="button" matTooltip="В файл" aria-label="В файл" (click)="exportFile()">
+    <mat-icon>download</mat-icon>
+  </button>
+  <button ptHeaderActions mat-icon-button type="button" matTooltip="Из файла" aria-label="Из файла" [disabled]="locked" (click)="importFile()">
+    <mat-icon>upload</mat-icon>
+  </button>
   <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="deleteVersion()">Удалить версию</button>
   <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="publish()">В прод</button>
   <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'PROD'" (click)="newVersion()">Новая версия</button>
@@ -16,62 +19,106 @@
 
 <mat-tab-group class="tabs">
   <mat-tab label="Основные данные">
-    <section class="panel pt-panel">
-      <div class="grid">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Линия</mat-label><input matInput [ngModel]="product.lob" readonly></mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Страховая компания</mat-label>
-          <mat-select [(ngModel)]="product.insCompanyId" [disabled]="locked" (ngModelChange)="touch()">
-            <mat-option [value]="null">Не выбрано</mat-option>
-            @for (company of companies; track company.id) {
-              <mat-option [value]="company.id">{{ company.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Код</mat-label><input matInput [(ngModel)]="product.code" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Название</mat-label><input matInput [(ngModel)]="product.name" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Форма ЛК</mat-label>
-          <mat-select [(ngModel)]="product.policyFormPageId" [disabled]="locked" (ngModelChange)="touch()">
-            <mat-option [value]="null">Не выбрано</mat-option>
-            @for (form of forms; track form.pageId) {
-              <mat-option [value]="form.pageId">{{ form.title || form.pageId }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Маска номера</mat-label><input matInput [(ngModel)]="product.numberGenerator.mask" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Период ожидания</mat-label><input matInput [(ngModel)]="product.waitingPeriod.validatorValue" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Срок полиса</mat-label><input matInput [(ngModel)]="product.policyTerm.validatorValue" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
-      </div>
-      <mat-checkbox [(ngModel)]="product.rules.insuredEqualsPolicyHolder" [disabled]="locked" (ngModelChange)="touch()">Застрахованный совпадает со страхователем</mat-checkbox>
-    </section>
+    <div class="stack">
+      <section class="panel pt-panel">
+        <h2 class="section-title">Версия продукта</h2>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>LOB</mat-label><input matInput [ngModel]="product.lob" readonly></mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Страховая компания</mat-label>
+            <mat-select [(ngModel)]="product.insCompanyId" [disabled]="locked" (ngModelChange)="touch()">
+              <mat-option [value]="null">— не выбрано —</mat-option>
+              @for (company of companies; track company.id) {
+                <mat-option [value]="company.id">{{ company.name }}@if (company.code) { ({{ company.code }}) }</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Кодировка</mat-label><input matInput [(ngModel)]="product.code" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Наименование продукта</mat-label><input matInput [(ngModel)]="product.name" [readonly]="locked" (ngModelChange)="touch()"></mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Номер версии</mat-label><input matInput [ngModel]="product.versionNo" readonly></mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Статус версии</mat-label><input matInput [ngModel]="product.versionStatus" readonly></mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Форма LK</mat-label>
+            <mat-select [(ngModel)]="product.policyFormPageId" [disabled]="locked" (ngModelChange)="touch()">
+              <mat-option [value]="null">— не выбрано —</mat-option>
+              @for (form of forms; track form.pageId) {
+                <mat-option [value]="form.pageId">{{ form.title || form.pageId }} ({{ form.pageId }})</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="panel pt-panel">
+        <h2 class="section-title">Период до начала действия договора</h2>
+        <p class="hint">Период между выпуском договора и датой начала его действия.</p>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Способ задания срока</mat-label>
+            <mat-select [(ngModel)]="product.waitingPeriod.validatorType" [disabled]="locked" (ngModelChange)="touch()">
+              @for (option of waitingTypes; track option) {
+                <mat-option [value]="option">{{ validatorTypeLabel(option) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Допустимые значения срока</mat-label>
+            <input matInput [(ngModel)]="product.waitingPeriod.validatorValue" [readonly]="locked" (ngModelChange)="touch()" placeholder="P1D-P30D">
+          </mat-form-field>
+        </div>
+        <p class="hint">{{ waitingHelp(product.waitingPeriod.validatorType) }}</p>
+      </section>
+
+      <section class="panel pt-panel">
+        <h2 class="section-title">Срок действия договора</h2>
+        <p class="hint">Период времени, в течение которого договор страхования является действующим и страховое покрытие предоставляется.</p>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Способ задания срока</mat-label>
+            <mat-select [(ngModel)]="product.policyTerm.validatorType" [disabled]="locked" (ngModelChange)="touch()">
+              @for (option of termTypes; track option) {
+                <mat-option [value]="option">{{ validatorTypeLabel(option) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Допустимые значения срока</mat-label>
+            <input matInput [(ngModel)]="product.policyTerm.validatorValue" [readonly]="locked" (ngModelChange)="touch()" placeholder="P1M,P3M,P6M,P1Y">
+          </mat-form-field>
+        </div>
+        <p class="hint">{{ termHelp(product.policyTerm.validatorType) }}</p>
+      </section>
+
+      <section class="panel pt-panel">
+        <h2 class="section-title">Генератор номеров</h2>
+        <p class="hint">Правила для формирования номера договора.</p>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Маска номера договора</mat-label>
+            <input matInput [(ngModel)]="product.numberGenerator.mask" [readonly]="locked" (ngModelChange)="touch()" placeholder="POL-{YYYY}-{MM}-{NNNN}">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Максимальное значение номера</mat-label>
+            <input matInput type="number" [(ngModel)]="product.numberGenerator.maxValue" [readonly]="locked" (ngModelChange)="touch()" placeholder="9999">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Период нумерации</mat-label>
+            <mat-select [(ngModel)]="product.numberGenerator.resetPolicy" [disabled]="locked" (ngModelChange)="touch()">
+              @for (option of resetPolicies; track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Перемешивание порядкового номера (XOR)</mat-label>
+            <input matInput [(ngModel)]="product.numberGenerator.xorMask" [readonly]="locked" (ngModelChange)="touch()" placeholder="0xABCD">
+          </mat-form-field>
+        </div>
+      </section>
+    </div>
   </mat-tab>
 
-  <mat-tab label="Проверки">
-    <section class="panel pt-panel">
-      <div class="toolbar"><h2>Котировка</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('quote')">Добавить</button></div>
-      <table>
-        <thead><tr><th>Ключ</th><th>Правило</th><th>Значение</th><th>Ошибка</th><th></th></tr></thead>
-        <tbody>
-          @for (item of product.quoteValidator; track $index) {
-            <tr><td>{{ item.keyLeft }}</td><td>{{ item.ruleType }}</td><td>{{ item.valueRight }}</td><td>{{ item.errorText }}</td>
-              <td><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('quote', $index)"><mat-icon>delete</mat-icon></button></td></tr>
-          }
-        </tbody>
-      </table>
-      <div class="toolbar"><h2>Сохранение</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('save')">Добавить</button></div>
-      <table>
-        <tbody>
-          @for (item of product.saveValidator; track $index) {
-            <tr><td>{{ item.keyLeft }}</td><td>{{ item.ruleType }}</td><td>{{ item.errorText }}</td>
-              <td><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('save', $index)"><mat-icon>delete</mat-icon></button></td></tr>
-          }
-        </tbody>
-      </table>
-    </section>
-  </mat-tab>
-
-  <mat-tab label="Схема договора">
+  <mat-tab label="Схема продукта">
     <section class="panel pt-panel">
       <pt-schema-tree
         [vars]="product.vars"
@@ -84,11 +131,88 @@
     </section>
   </mat-tab>
 
+  <mat-tab label="Ограничения">
+    <div class="stack">
+      <section class="panel pt-panel">
+        <h2 class="section-title">Правила договора</h2>
+        <mat-checkbox [(ngModel)]="product.rules.insuredEqualsPolicyHolder" [disabled]="locked" (ngModelChange)="touch()">Страхователь = Застрахованный</mat-checkbox>
+      </section>
+      <section class="panel pt-panel">
+        <div class="toolbar"><h2 class="section-title">Проверки предрасчета</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('quote')">Добавить</button></div>
+        <table>
+          <thead><tr><th>№</th><th>Текст ошибки</th><th>Условие</th><th></th></tr></thead>
+          <tbody>
+            @for (item of product.quoteValidator; track $index) {
+              <tr>
+                <td>{{ item.lineNr || '' }}</td>
+                <td>{{ item.errorText }}</td>
+                <td>{{ item.keyLeft }} {{ item.ruleType }} {{ item.valueRight }}</td>
+                <td class="row-actions"><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('quote', $index)"><mat-icon>delete</mat-icon></button></td>
+              </tr>
+            } @empty { <tr><td colspan="4" class="state">Проверок нет</td></tr> }
+          </tbody>
+        </table>
+      </section>
+      <section class="panel pt-panel">
+        <div class="toolbar"><h2 class="section-title">Проверки договора</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('save')">Добавить</button></div>
+        <table>
+          <thead><tr><th>№</th><th>Текст ошибки</th><th>Условие</th><th></th></tr></thead>
+          <tbody>
+            @for (item of product.saveValidator; track $index) {
+              <tr>
+                <td>{{ item.lineNr || '' }}</td>
+                <td>{{ item.errorText }}</td>
+                <td>{{ item.keyLeft }} {{ item.ruleType }} {{ item.valueRight }}</td>
+                <td class="row-actions"><button mat-icon-button type="button" class="danger" [disabled]="locked" (click)="deleteValidator('save', $index)"><mat-icon>delete</mat-icon></button></td>
+              </tr>
+            } @empty { <tr><td colspan="4" class="state">Проверок нет</td></tr> }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Продуктовые правила">
+    <div class="stack">
+      <section class="panel pt-panel">
+        <h2 class="section-title">Продуктовые правила</h2>
+      </section>
+      @for (group of celGroups; track group.ruleType) {
+        <section class="panel pt-panel">
+          <div class="toolbar">
+            <h2>{{ group.title }}</h2>
+            <button mat-stroked-button type="button" [disabled]="locked" (click)="addCelRule(group.ruleType)">Добавить</button>
+          </div>
+          <table>
+            <thead><tr><th>Приоритет</th><th>Название</th><th>Текст правила</th><th>Текст ошибки</th><th></th></tr></thead>
+            <tbody>
+              @for (rule of celRules(group.ruleType); track rule.code + '-' + $index) {
+                <tr>
+                  <td>{{ rule.priority }}</td>
+                  <td>{{ rule.name }}</td>
+                  <td>{{ rule.llmText || '—' }}</td>
+                  <td>{{ rule.message || '—' }}</td>
+                  <td class="row-actions">
+                    <pt-action-button kind="edit" [disabled]="locked" (pressed)="editCelRule(rule)" />
+                    <pt-action-button kind="delete" [disabled]="locked" (pressed)="deleteCelRule(rule)" />
+                  </td>
+                </tr>
+              } @empty { <tr><td colspan="5" class="state">Правил нет</td></tr> }
+            </tbody>
+          </table>
+        </section>
+      }
+    </div>
+  </mat-tab>
+
   <mat-tab label="Пакеты">
     <section class="packages">
-      <div class="toolbar">
-        <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addPackage()">Добавить пакет</button>
-      </div>
+      <section class="panel pt-panel">
+        <div class="toolbar">
+          <h2 class="section-title">Пакеты</h2>
+          <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addPackage()">Добавить</button>
+        </div>
+      </section>
       @for (pkg of product.packages; track pkg.code) {
         <article class="pkg pt-panel">
           <header class="pkg__head" (click)="togglePackage(pkg.code)">
@@ -107,7 +231,7 @@
             <div class="pkg__body">
               <div class="toolbar">
                 <h2>Покрытия</h2>
-                <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addCover(pkg)">Добавить</button>
+                <pt-action-button kind="add" [disabled]="locked" (pressed)="addCover(pkg)" />
               </div>
               <div class="covers">
                 @for (cover of pkg.covers; track cover.code) {
@@ -135,7 +259,7 @@
                       <div class="deductibles">
                         <div class="deductibles__head">
                           <strong>Франшизы</strong>
-                          <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addDeductible(cover)">Добавить</button>
+                          <pt-action-button kind="add" [disabled]="locked" (pressed)="addDeductible(cover)" />
                         </div>
                         <table>
                           <thead><tr><th>№</th><th>Тип франшизы</th><th></th></tr></thead>
@@ -163,7 +287,7 @@
               </div>
               <div class="toolbar">
                 <h2>Файлы</h2>
-                <button mat-flat-button color="primary" type="button" [disabled]="locked" (click)="addFile(pkg)">Добавить</button>
+                <pt-action-button kind="add" [disabled]="locked" (pressed)="addFile(pkg)" />
               </div>
               <table class="files">
                 <thead>

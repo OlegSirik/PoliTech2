@@ -149,6 +149,18 @@ export interface ProductPackage {
   calculatorId?: number | null;
 }
 
+export interface ProductCelRule {
+  id?: number;
+  code?: string;
+  name?: string;
+  ruleType?: string;
+  priority?: number;
+  llmText?: string;
+  message?: string;
+  expression?: string;
+  scopeType?: string;
+}
+
 export interface ProductVersion {
   id?: number;
   lob: string;
@@ -166,7 +178,7 @@ export interface ProductVersion {
   packages: ProductPackage[];
   vars: PolicyVar[];
   rules: { insuredEqualsPolicyHolder: boolean };
-  celRules?: { id?: number; code?: string; name?: string; ruleType?: string }[];
+  celRules?: ProductCelRule[];
 }
 
 export interface CalculatorVar {
@@ -291,6 +303,7 @@ export function normalizeProduct(value: ProductVersion): ProductVersion {
     })),
     vars: value.vars ?? [],
     rules: { insuredEqualsPolicyHolder: !!value.rules?.insuredEqualsPolicyHolder },
+    celRules: value.celRules ?? [],
   };
 }
 

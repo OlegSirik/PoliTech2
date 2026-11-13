@@ -9,6 +9,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { SearchPageComponent } from '../../shared/ui/search-page/search-page.component';
 import { EditPageComponent } from '../../shared/ui/edit-page/edit-page.component';
@@ -30,6 +31,7 @@ import { PtAction, PtColumn, PtRow, PtRowAction } from '../../shared/ui/platform
     MatSelectModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatTooltipModule,
     PageHeaderComponent,
     SearchPageComponent,
     EditPageComponent,

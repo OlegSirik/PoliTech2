@@ -39,6 +39,10 @@
         </mat-form-field>
         <button mat-stroked-button type="button" [disabled]="asking()" (click)="askLlm()">{{ asking() ? 'Генерация…' : 'Выполнить' }}</button>
         <pre>{{ readable() || 'Формул нет' }}</pre>
+      </section>
+    </mat-tab>
+    <mat-tab label="Контекст расчета">
+      <section class="panel pt-panel">
         <div class="toolbar"><button mat-flat-button color="primary" type="button" (click)="addVar()">Переменная</button></div>
         <table>
           <thead><tr><th>Код</th><th>Название</th><th>Вид</th><th>Значение</th><th></th></tr></thead>
