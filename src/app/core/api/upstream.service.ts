@@ -14,6 +14,10 @@ export class UpstreamService {
     return this.http.get(this.url(path), { responseType: 'text' });
   }
 
+  getBlob(path: string): Observable<Blob> {
+    return this.http.get(this.url(path), { responseType: 'blob' });
+  }
+
   post<T>(path: string, body: unknown): Observable<T> {
     return this.http.post<T>(this.url(path), body ?? {});
   }

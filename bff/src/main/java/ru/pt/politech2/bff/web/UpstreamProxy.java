@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import ru.pt.politech2.bff.api.PoliTechApiClient;
+import ru.pt.politech2.bff.api.PoliTechApiClient.UpstreamBinary;
 import ru.pt.politech2.bff.session.BffSessionKeys;
 
 @Component
@@ -50,6 +51,45 @@ public class UpstreamProxy {
                     + escapeJson(apiClient.getBaseUrl()) + ": " + escapeJson(ex.getMessage()) + "\"}");
         } catch (Exception ex) {
             return json(HttpStatus.BAD_GATEWAY, "{\"message\":\"Proxy error: " + escapeJson(ex.getMessage()) + "\"}");
+        }
+    }
+
+    public ResponseEntity<byte[]> forwardBinary(
+            HttpSession session, String method, String pathAfterTenant, String rawQuery) {
+        String token = session == null ? null : (String) session.getAttribute(BffSessionKeys.ACCESS_TOKEN);
+        String tenantCode = session == null ? null : (String) session.getAttribute(BffSessionKeys.TENANT_CODE);
+        if (token == null || token.isBlank() || tenantCode == null || tenantCode.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\":\"Not authenticated\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        String tokenType = (String) session.getAttribute(BffSessionKeys.TOKEN_TYPE);
+        String accountId = (String) session.getAttribute(BffSessionKeys.ACCOUNT_ID);
+        try {
+            UpstreamBinary upstream = apiClient.authorizedBinary(
+                    method, tenantCode, token, tokenType, accountId, pathAfterTenant, rawQuery);
+            if (upstream.status() == 401) {
+                session.invalidate();
+            }
+            byte[] body = upstream.body() == null ? new byte[0] : upstream.body();
+            MediaType type = upstream.contentType();
+            if (type == null) {
+                type = upstream.success() ? MediaType.APPLICATION_PDF : MediaType.APPLICATION_JSON;
+            }
+            return ResponseEntity.status(upstream.status() > 0 ? upstream.status() : 502)
+                    .contentType(type)
+                    .body(body);
+        } catch (ResourceAccessException ex) {
+            String message = "{\"message\":\"BFF cannot reach PoliTechAPI at "
+                    + escapeJson(apiClient.getBaseUrl()) + ": " + escapeJson(ex.getMessage()) + "\"}";
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(message.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        } catch (Exception ex) {
+            String message = "{\"message\":\"Proxy error: " + escapeJson(ex.getMessage()) + "\"}";
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(message.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }
     }
 

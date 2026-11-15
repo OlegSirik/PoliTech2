@@ -26,10 +26,9 @@ import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.com
 import { FieldsDialogComponent } from '../../shared/ui/fields-dialog/fields-dialog.component';
 import { SchemaTreeComponent } from '../products/schema-tree.component';
 import { ActionButtonComponent } from '../../shared/ui/action-button/action-button.component';
+import { LlmPromptComponent } from '../../shared/ui/llm-prompt/llm-prompt.component';
 import { TariffTablesComponent } from '../../shared/ui/tariff-tables/tariff-tables.component';
 import { TariffTable } from '../../shared/ui/tariff-tables/tariff-table.model';
-import { RuleAssistService } from '../../core/api/rule-assist.service';
-
 @Component({
   selector: 'pt-business-line-edit-page',
   imports: [
@@ -45,6 +44,7 @@ import { RuleAssistService } from '../../core/api/rule-assist.service';
     PageHeaderComponent,
     SchemaTreeComponent,
     ActionButtonComponent,
+    LlmPromptComponent,
     TariffTablesComponent,
   ],
   templateUrl: './business-line-edit-page.component.html',
@@ -56,23 +56,17 @@ export class BusinessLineEditPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  private readonly assist = inject(RuleAssistService);
 
   protected readonly isNew = signal(true);
   protected readonly saving = signal(false);
   protected readonly dirty = signal(false);
   protected readonly asking = signal(false);
   protected readonly agentOpen = signal(false);
-  protected readonly llmReady = signal(true);
   protected line: LobDocument = emptyLob();
   protected coverPrompt = '';
   protected templates: CalculatorTemplate[] = [];
 
   ngOnInit(): void {
-    this.assist.llmConfig().subscribe({
-      next: (view) => this.llmReady.set(!!view.configured && !!view.enabled),
-      error: () => this.llmReady.set(false),
-    });
     const id = this.route.snapshot.paramMap.get('id');
     if (!id || id === 'new') {
       this.isNew.set(true);

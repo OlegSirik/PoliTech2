@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-export type PtActionKind = 'add' | 'edit' | 'delete';
+export type PtActionKind = 'edit' | 'delete';
 
 @Component({
   selector: 'pt-action-button',
@@ -31,8 +31,8 @@ export class ActionButtonComponent {
 
   readonly pressed = output<Event>();
 
-  protected readonly icon = computed(() => ({ add: 'add', edit: 'edit', delete: 'delete' })[this.kind()]);
-  protected readonly label = computed(() => ({ add: 'Добавить', edit: 'Редактировать', delete: 'Удалить' })[this.kind()]);
+  protected readonly icon = computed(() => ({ edit: 'edit', delete: 'delete' })[this.kind()]);
+  protected readonly label = computed(() => ({ edit: 'Редактировать', delete: 'Удалить' })[this.kind()]);
 
   protected press(event: Event): void {
     event.stopPropagation();

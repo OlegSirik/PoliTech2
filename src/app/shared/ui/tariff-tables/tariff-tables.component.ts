@@ -3,7 +3,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CoefficientDataRow } from '../../../core/api/catalog.models';
 import { ActionButtonComponent } from '../action-button/action-button.component';
+import { exportCoefficientExcel, pickCoefficientExcel } from './coefficient-excel';
 import { buildCoefficientDataSql } from './coefficient-sql';
 import { SqlDialogComponent } from './sql-dialog.component';
 import { TariffColumnDialogComponent } from './tariff-column-dialog.component';
@@ -12,13 +15,16 @@ import { TariffTableDialogComponent } from './tariff-table-dialog.component';
 
 @Component({
   selector: 'pt-tariff-tables',
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, MatSnackBarModule, ActionButtonComponent],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, MatSnackBarModule, MatTooltipModule, ActionButtonComponent],
   template: `
     <section class="stack">
       <section class="panel pt-panel">
         <div class="toolbar">
           <h2 class="section-title">{{ title() }}</h2>
-          <pt-action-button kind="add" (pressed)="addTable()" />
+          <button mat-stroked-button class="pt-btn-agent" type="button" matTooltip="AI-агент" aria-label="AI-агент" [class.is-open]="agentOpen()" (click)="agentToggle.emit()">
+            <mat-icon>smart_toy</mat-icon>
+          </button>
+          <button mat-flat-button class="pt-btn-accent" type="button" (click)="addTable()"><mat-icon>add</mat-icon>Добавить</button>
         </div>
       </section>
       @for (item of tables(); track $index) {
@@ -37,7 +43,7 @@ import { TariffTableDialogComponent } from './tariff-table-dialog.component';
           @if (open(item)) {
             <div class="fold__body">
               <div class="toolbar toolbar-end">
-                <pt-action-button kind="add" (pressed)="addColumn(item)" />
+                <button mat-flat-button class="pt-btn-accent" type="button" (click)="addColumn(item)"><mat-icon>add</mat-icon>Добавить</button>
                 <button mat-stroked-button type="button" (click)="showSql(item)">SQL</button>
               </div>
               <table>
@@ -58,6 +64,44 @@ import { TariffTableDialogComponent } from './tariff-table-dialog.component';
                   } @empty { <tr><td colspan="6" class="state">Колонок нет</td></tr> }
                 </tbody>
               </table>
+              @if (showsGrid(item)) {
+                <div class="grid">
+                  <div class="toolbar">
+                    <h2 class="section-title">Тарифная сетка по {{ item.varName || item.varCode }}</h2>
+                    <button mat-flat-button color="primary" type="button" (click)="saveGrid.emit()">Сохранить данные</button>
+                    <button mat-stroked-button type="button" (click)="exportExcel(item)">
+                      <mat-icon>file_download</mat-icon>
+                      В Excel
+                    </button>
+                    <button mat-stroked-button type="button" (click)="importExcel(item)">
+                      <mat-icon>file_upload</mat-icon>
+                      Из Excel
+                    </button>
+                  </div>
+                  <table class="data">
+                    <thead>
+                      <tr>
+                        @for (column of dataColumns(item); track column.nr + column.varCode) {
+                          <th>{{ dataHeader(column) }}</th>
+                        }
+                        <th class="num">Коэффициент</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of gridRows(); track $index) {
+                        <tr>
+                          @for (column of dataColumns(item); track column.nr + column.varCode; let index = $index) {
+                            <td>{{ dataCell(row, index) }}</td>
+                          }
+                          <td class="num">{{ row.resultValue }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td class="state" [attr.colspan]="dataColumns(item).length + 1">Строк данных нет</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
             </div>
           }
         </article>
@@ -95,9 +139,16 @@ import { TariffTableDialogComponent } from './tariff-table-dialog.component';
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px 12px; border-bottom: 1px solid var(--pt-color-line); text-align: left; vertical-align: top; }
     th { font-size: var(--pt-font-xs); letter-spacing: 0.04em; text-transform: uppercase; color: var(--pt-color-ink-soft); }
-    tbody tr { cursor: pointer; }
+    table:not(.data) tbody tr { cursor: pointer; }
     .row-actions { width: 1%; text-align: right; white-space: nowrap; }
     .state { color: var(--pt-color-ink-soft); }
+    .grid {
+      display: grid;
+      gap: var(--pt-space-3);
+      padding-top: var(--pt-space-3);
+      border-top: 1px solid var(--pt-color-line);
+    }
+    .num { text-align: right; }
   `,
 })
 export class TariffTablesComponent {
@@ -107,14 +158,64 @@ export class TariffTablesComponent {
 
   readonly tables = input.required<TariffTable[]>();
   readonly vars = input<TariffVarOption[]>([]);
+  readonly productVars = input<TariffVarOption[]>([]);
   readonly calculatorId = input<number | string>(0);
   readonly title = input('Тарифные таблицы');
+  readonly agentOpen = input(false);
+  readonly gridCode = input<string | null>(null);
+  readonly gridRows = input<CoefficientDataRow[]>([]);
 
   readonly changed = output<TariffTable[]>();
   readonly selected = output<TariffTable | null>();
+  readonly agentToggle = output<void>();
+  readonly saveGrid = output<void>();
+  readonly rowsImported = output<CoefficientDataRow[]>();
 
   protected open(item: TariffTable): boolean {
     return this.opened().has(item);
+  }
+
+  protected showsGrid(item: TariffTable): boolean {
+    return this.open(item) && !!item.varCode && item.varCode === this.gridCode();
+  }
+
+  protected dataColumns(item: TariffTable): TariffColumn[] {
+    return [...(item.columns ?? [])].sort((a, b) => Number(a.nr) - Number(b.nr));
+  }
+
+  protected dataHeader(column: TariffColumn): string {
+    const code = column.varCode;
+    const fromCalc = this.vars().find((item) => item.varCode === code)?.varName;
+    const fromProduct = this.productVars().find((item) => item.varCode === code)?.varName;
+    return `${column.conditionOperator ?? ''} ${fromCalc || fromProduct || code}`.trim();
+  }
+
+  protected dataCell(row: CoefficientDataRow, index: number): string {
+    const value = row.conditionValue?.[index];
+    return value == null ? '' : String(value);
+  }
+
+  protected exportExcel(item: TariffTable): void {
+    const columns = this.dataColumns(item);
+    const headers = [...columns.map((column) => this.dataHeader(column)), 'Коэффициент'];
+    const rows = this.gridRows().map((row) => [
+      ...columns.map((_, index) => this.dataCell(row, index)),
+      row.resultValue,
+    ]);
+    void exportCoefficientExcel(`coefficients_${item.varCode || 'data'}.xlsx`, headers, rows).catch(() => {
+      this.snack.open('Не удалось выгрузить Excel', 'Закрыть', { duration: 3000 });
+    });
+  }
+
+  protected importExcel(item: TariffTable): void {
+    void pickCoefficientExcel(this.dataColumns(item).length).then((rows) => {
+      if (!rows) {
+        this.snack.open('Не удалось прочитать Excel', 'Закрыть', { duration: 3000 });
+        return;
+      }
+      this.rowsImported.emit(rows);
+      this.snack.open('Данные загружены. Сохраните таблицу.', 'Закрыть', { duration: 2500 });
+    });
   }
 
   protected toggle(item: TariffTable): void {

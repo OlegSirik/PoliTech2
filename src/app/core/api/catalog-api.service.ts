@@ -4,7 +4,13 @@ import {
   CalculatorDocument,
   CalculatorTemplate,
   CoefficientDataRow,
+  AddonPricelist,
+  AddonProvider,
   InsuranceCompany,
+  Partner,
+  PartnerCommission,
+  PartnerMember,
+  PartnerProduct,
   LobDocument,
   LobSummary,
   PolicyForm,
@@ -52,6 +58,10 @@ export class CatalogApiService {
 
   product(id: number, versionNo: number): Observable<ProductVersion> {
     return this.api.get<ProductVersion>(`admin/products/${id}/versions/${versionNo}`);
+  }
+
+  assistProduct(productId: number, versionNo: number, userMessage: string, taskType: string): Observable<{ success?: boolean; result?: unknown; warnings?: string[]; errors?: string[] }> {
+    return this.api.post(`admin/products/${productId}/versions/${versionNo}/llm/assist`, { taskType, userMessage, productId, versionNo });
   }
 
   createProduct(body: ProductVersion): Observable<ProductVersion> {
@@ -120,6 +130,18 @@ export class CatalogApiService {
     return this.api.get<InsuranceCompany[]>('admin/insCompanies');
   }
 
+  insuranceCompany(id: number): Observable<InsuranceCompany> {
+    return this.api.get<InsuranceCompany>(`admin/insCompanies/${id}`);
+  }
+
+  createInsuranceCompany(body: InsuranceCompany): Observable<InsuranceCompany> {
+    return this.api.post<InsuranceCompany>('admin/insCompanies', body);
+  }
+
+  updateInsuranceCompany(id: number, body: InsuranceCompany): Observable<InsuranceCompany> {
+    return this.api.put<InsuranceCompany>(`admin/insCompanies/${id}`, body);
+  }
+
   policyForms(): Observable<PolicyForm[]> {
     return this.api.get<PolicyForm[]>('admin/policy-forms');
   }
@@ -177,5 +199,105 @@ export class CatalogApiService {
 
   coefficientSql(calculatorId: string | number, code: string): Observable<string> {
     return this.api.getText(`admin/calculators/${calculatorId}/coefficients/${encodeURIComponent(code)}/SQL`);
+  }
+
+  addonProviders(): Observable<AddonProvider[]> {
+    return this.api.get<AddonProvider[]>('admin/addon/providers');
+  }
+
+  addonProvider(id: number): Observable<AddonProvider> {
+    return this.api.get<AddonProvider>(`admin/addon/providers/${id}`);
+  }
+
+  createAddonProvider(body: AddonProvider): Observable<AddonProvider> {
+    return this.api.post<AddonProvider>('admin/addon/providers', body);
+  }
+
+  updateAddonProvider(id: number, body: AddonProvider): Observable<AddonProvider> {
+    return this.api.put<AddonProvider>(`admin/addon/providers/${id}`, body);
+  }
+
+  suspendAddonProvider(id: number): Observable<void> {
+    return this.api.delete<void>(`admin/addon/providers/${id}`);
+  }
+
+  addonPricelists(providerId?: number): Observable<AddonPricelist[]> {
+    return this.api.get<AddonPricelist[]>('admin/addon/pricelists', { spId: providerId });
+  }
+
+  addonPricelist(id: number): Observable<AddonPricelist> {
+    return this.api.get<AddonPricelist>(`admin/addon/pricelists/${id}`);
+  }
+
+  createAddonPricelist(body: AddonPricelist): Observable<AddonPricelist> {
+    return this.api.post<AddonPricelist>('admin/addon/pricelists', body);
+  }
+
+  updateAddonPricelist(id: number, body: AddonPricelist): Observable<AddonPricelist> {
+    return this.api.put<AddonPricelist>(`admin/addon/pricelists/${id}`, body);
+  }
+
+  deleteAddonPricelist(id: number): Observable<void> {
+    return this.api.delete<void>(`admin/addon/pricelists/${id}`);
+  }
+
+  partners(): Observable<Partner[]> {
+    return this.api.get<Partner[]>('admin/clients');
+  }
+
+  partner(id: number): Observable<Partner> {
+    return this.api.get<Partner>(`admin/clients/${id}`);
+  }
+
+  createPartner(body: Partner): Observable<Partner> {
+    return this.api.post<Partner>('admin/clients', body);
+  }
+
+  updatePartner(id: number, body: Partner): Observable<Partner> {
+    return this.api.put<Partner>(`admin/clients/${id}`, body);
+  }
+
+  partnerProducts(id: number): Observable<PartnerProduct[]> {
+    return this.api.get<PartnerProduct[]>(`admin/clients/${id}/products`);
+  }
+
+  grantPartnerProduct(id: number, body: PartnerProduct): Observable<PartnerProduct> {
+    return this.api.post<PartnerProduct>(`admin/clients/${id}/products`, body);
+  }
+
+  revokePartnerProduct(id: number, grantId: number): Observable<void> {
+    return this.api.delete<void>(`admin/clients/${id}/products/${grantId}`);
+  }
+
+  partnerMembers(id: number, role: string): Observable<PartnerMember[]> {
+    return this.api.get<PartnerMember[]>(`admin/clients/${id}/members`, { role });
+  }
+
+  addPartnerMember(id: number, body: { role: string; userLogin: string }): Observable<PartnerMember> {
+    return this.api.post<PartnerMember>(`admin/clients/${id}/members`, body);
+  }
+
+  deletePartnerMember(id: number, memberId: number): Observable<void> {
+    return this.api.delete<void>(`admin/clients/${id}/members/${memberId}`);
+  }
+
+  partnerCommissions(accountId: number, productId: number): Observable<PartnerCommission[]> {
+    return this.api.get<PartnerCommission[]>('admin/commissions/configurations', { accountId, productId });
+  }
+
+  partnerCommission(id: number): Observable<PartnerCommission> {
+    return this.api.get<PartnerCommission>(`admin/commissions/configurations/${id}`);
+  }
+
+  createPartnerCommission(body: PartnerCommission): Observable<PartnerCommission> {
+    return this.api.post<PartnerCommission>('admin/commissions/configurations', body);
+  }
+
+  updatePartnerCommission(id: number, body: PartnerCommission): Observable<PartnerCommission> {
+    return this.api.put<PartnerCommission>(`admin/commissions/configurations/${id}`, body);
+  }
+
+  deletePartnerCommission(id: number): Observable<void> {
+    return this.api.delete<void>(`admin/commissions/configurations/${id}`);
   }
 }

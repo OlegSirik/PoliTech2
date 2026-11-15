@@ -15,13 +15,21 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Обзор', icon: 'space_dashboard', route: '/dashboard' },
       { label: 'Страховые продукты', icon: 'inventory_2', route: '/products' },
+      { label: 'Страховые компании', icon: 'business', route: '/ins-companies' },
+      { label: 'Доп.продукты', icon: 'extension', route: '/addons' },
       { label: 'Линии бизнеса', icon: 'account_tree', route: '/business-lines' },
-      { label: 'Калькуляторы', icon: 'calculate', route: '/calculators' },
+    ],
+  },
+  {
+    label: 'Договоры',
+    items: [
+      { label: 'Котировки', icon: 'request_quote', route: '/quotes' },
     ],
   },
   {
     label: 'Администрирование',
     items: [
+      { label: 'Партнеры', icon: 'groups', route: '/partners' },
       { label: 'Правила', icon: 'rule', route: '/rules' },
       { label: 'Справочники', icon: 'menu_book', route: '/refdicts' },
     ],

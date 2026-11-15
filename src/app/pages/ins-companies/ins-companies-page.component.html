@@ -1,0 +1,15 @@
+<pt-search-page
+  title="Страховые компании"
+  subtitle="Список страховых компаний."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Страховые компании' }]"
+  [columns]="columns"
+  [rows]="rows()"
+  [actions]="actions"
+  [rowActions]="rowActions"
+  [loading]="loading()"
+  queryPlaceholder="Код или название"
+  [(query)]="query"
+  (action)="onAction($event)"
+  (rowAction)="open($event.row)"
+  (rowClick)="open($event)">
+</pt-search-page>

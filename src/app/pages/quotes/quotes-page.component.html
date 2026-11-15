@@ -1,0 +1,70 @@
+<pt-page-header
+  title="Котировки"
+  subtitle="Список котировок и полисов."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Котировки' }]">
+</pt-page-header>
+
+<section class="panel pt-panel">
+  <div class="toolbar">
+    <h2 class="section-title">Список котировок и полисов</h2>
+  </div>
+
+  <div class="filters">
+    <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Поиск</mat-label>
+      <input matInput [ngModel]="searchText" (ngModelChange)="onSearch($event)" placeholder="Номер, страхователь или продукт" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-form-field class="status-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Статус</mat-label>
+      <mat-select [(ngModel)]="selectedStatus">
+        <mat-option value="">Все статусы</mat-option>
+        @for (status of statuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="quotes">
+    @if (loading()) {
+      <p class="state">Загрузка…</p>
+    } @else {
+      @for (quote of visibleQuotes(); track quote.id ?? quote.policyNr) {
+        <mat-expansion-panel class="quote-panel">
+          <mat-expansion-panel-header collapsedHeight="80px" expandedHeight="80px">
+            <mat-panel-title class="quote-title">
+              <div class="quote-row">
+                <div>
+                  <div class="line-strong">{{ text(quote.phDigest) }}</div>
+                  <div class="line-soft">{{ text(quote.policyNr) }}</div>
+                  <div class="line-soft">{{ text(quote.agentDigest) }}</div>
+                </div>
+                <div>
+                  <div class="line-strong">{{ text(quote.productCode) }}</div>
+                  <div class="line-soft">{{ text(quote.ioDigest) }}</div>
+                  <div class="line-soft">{{ text(quote.premium, '0') }}</div>
+                </div>
+                <div>
+                  <div class="line-strong">
+                    <span [class]="'pt-status ' + statusClass(quote.policyStatus)">{{ text(quote.policyStatus) }}</span>
+                  </div>
+                  <div class="line-soft">{{ text(quote.insCompany, 'ВСК') }}</div>
+                  <div class="line-soft">{{ text(quote.agentKvAmount, '0') }} ({{ text(quote.agentKvPrecent, '0') }}%)</div>
+                </div>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="commands">
+            <button mat-button type="button" (click)="viewPolicy(quote)">Посмотреть договор</button>
+            @for (index of commandIndexes(quote); track index) {
+              <button mat-button type="button" (click)="runCommand(quote, index)">{{ commandLabel(index) }}</button>
+            }
+          </div>
+        </mat-expansion-panel>
+      } @empty {
+        <p class="state">Котировок нет</p>
+      }
+    }
+  </div>
+</section>

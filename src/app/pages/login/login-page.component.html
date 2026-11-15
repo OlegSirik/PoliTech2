@@ -1,18 +1,18 @@
 <section class="story">
   <div class="story__brand">
-    <span>P2</span>
+    <span>Pt</span>
     <strong>PoliTech2</strong>
   </div>
 
   <div class="story__copy">
-    <h1>Настройка страховых продуктов</h1>
-    <p>Линии бизнеса, пакеты, покрытия и калькуляторы — в одной консоли, отдельно от витрины продаж.</p>
+    <h1>Дизайнер страховых продуктов</h1>
+    <p>Создай страховой продукт, настрой калькулятор, подключи партнера и начни продавать</p>
   </div>
 
   <ul>
     <li>Карточка продукта и версии</li>
     <li>Поиск по каталогу</li>
-    <li>Свойства выбранного объекта</li>
+    <li>Тарифный калькулятор</li>
   </ul>
 </section>
 
@@ -21,23 +21,9 @@
     <header class="card__head">
       <div>
         <h2>Вход</h2>
-        <p>Вход идёт через BFF. Браузер не обращается к PoliTechAPI напрямую.</p>
       </div>
       <pt-theme-toggle />
     </header>
-
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Тенант</mat-label>
-      <input matInput formControlName="tenant" autocomplete="organization">
-      @if (form.controls.tenant.touched && form.controls.tenant.invalid) {
-        <mat-error>Укажите тенант</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Клиент</mat-label>
-      <input matInput formControlName="clientId" autocomplete="off" placeholder="необязательно">
-    </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Логин</mat-label>
@@ -74,7 +60,5 @@
     <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
       {{ submitting() ? 'Вход…' : 'Войти' }}
     </button>
-
-    <p class="card__hint">BFF проверяет учётную запись в PoliTechAPI и хранит токен в серверной сессии.</p>
   </form>
 </section>

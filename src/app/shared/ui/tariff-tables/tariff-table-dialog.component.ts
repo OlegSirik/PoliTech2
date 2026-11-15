@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,7 +16,7 @@ export interface TariffTableDialogData {
 
 @Component({
   selector: 'pt-tariff-table-dialog',
-  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatAutocompleteModule],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatAutocompleteModule],
   template: `
     <h2 mat-dialog-title>{{ data.isNew ? 'Добавить тарифную таблицу' : 'Редактировать тарифную таблицу' }}</h2>
     <div mat-dialog-content class="fields">
@@ -48,7 +49,10 @@ export interface TariffTableDialogData {
     </div>
     <div mat-dialog-actions align="end">
       <button mat-stroked-button type="button" mat-dialog-close>Отмена</button>
-      <button mat-flat-button color="primary" type="button" [disabled]="!valid()" (click)="submit()">
+      <button mat-flat-button color="primary" type="button" [class.pt-btn-accent]="data.isNew" [disabled]="!valid()" (click)="submit()">
+        @if (data.isNew) {
+          <mat-icon>add</mat-icon>
+        }
         {{ data.isNew ? 'Добавить' : 'Сохранить' }}
       </button>
     </div>

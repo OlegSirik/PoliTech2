@@ -11,7 +11,10 @@
     <section class="panel pt-panel">
       <header>
         <h2>Справочники</h2>
-        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addDict()">Добавить</button>
+        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addDict()">
+          <mat-icon>add</mat-icon>
+          Добавить
+        </button>
       </header>
       @if (loadingDicts()) {
         <p class="state">Загрузка…</p>
@@ -49,7 +52,10 @@
         }
       </h2>
       @if (mode() === 'edit' && selectedDictCode()) {
-        <button mat-flat-button color="primary" type="button" (click)="addItem()">Добавить</button>
+        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addItem()">
+          <mat-icon>add</mat-icon>
+          Добавить
+        </button>
       }
     </header>
 

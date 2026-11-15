@@ -35,11 +35,21 @@ export interface PtRowActionEvent {
 }
 
 export function statusClass(value: string): string {
-  if (value === 'Опубликован') {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'опубликован') {
     return 'is-published';
   }
-  if (value === 'Архив') {
+  if (normalized === 'архив' || normalized === 'deleted') {
     return 'is-archived';
   }
-  return 'is-draft';
+  if (normalized === 'черновик') {
+    return 'is-draft';
+  }
+  if (normalized === 'active') {
+    return 'is-active';
+  }
+  if (normalized === 'suspended') {
+    return 'is-suspended';
+  }
+  return '';
 }

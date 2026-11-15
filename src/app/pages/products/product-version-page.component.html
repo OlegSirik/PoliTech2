@@ -11,7 +11,10 @@
   </button>
   <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="deleteVersion()">Удалить версию</button>
   <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'DEV'" (click)="publish()">В прод</button>
-  <button ptHeaderActions mat-stroked-button type="button" [hidden]="product.versionStatus !== 'PROD'" (click)="newVersion()">Новая версия</button>
+  <button ptHeaderActions mat-flat-button class="pt-btn-accent" type="button" [hidden]="product.versionStatus !== 'PROD'" (click)="newVersion()">
+    <mat-icon>add</mat-icon>
+    Новая версия
+  </button>
   <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="locked || saving()" (click)="save()">
     {{ saving() ? 'Сохранение…' : 'Сохранить' }}
   </button>
@@ -138,7 +141,7 @@
         <mat-checkbox [(ngModel)]="product.rules.insuredEqualsPolicyHolder" [disabled]="locked" (ngModelChange)="touch()">Страхователь = Застрахованный</mat-checkbox>
       </section>
       <section class="panel pt-panel">
-        <div class="toolbar"><h2 class="section-title">Проверки предрасчета</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('quote')">Добавить</button></div>
+        <div class="toolbar"><h2 class="section-title">Проверки предрасчета</h2><button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addValidator('quote')"><mat-icon>add</mat-icon>Добавить</button></div>
         <table>
           <thead><tr><th>№</th><th>Текст ошибки</th><th>Условие</th><th></th></tr></thead>
           <tbody>
@@ -154,7 +157,7 @@
         </table>
       </section>
       <section class="panel pt-panel">
-        <div class="toolbar"><h2 class="section-title">Проверки договора</h2><button mat-stroked-button type="button" [disabled]="locked" (click)="addValidator('save')">Добавить</button></div>
+        <div class="toolbar"><h2 class="section-title">Проверки договора</h2><button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addValidator('save')"><mat-icon>add</mat-icon>Добавить</button></div>
         <table>
           <thead><tr><th>№</th><th>Текст ошибки</th><th>Условие</th><th></th></tr></thead>
           <tbody>
@@ -181,7 +184,7 @@
         <section class="panel pt-panel">
           <div class="toolbar">
             <h2>{{ group.title }}</h2>
-            <button mat-stroked-button type="button" [disabled]="locked" (click)="addCelRule(group.ruleType)">Добавить</button>
+            <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addCelRule(group.ruleType)"><mat-icon>add</mat-icon>Добавить</button>
           </div>
           <table>
             <thead><tr><th>Приоритет</th><th>Название</th><th>Текст правила</th><th>Текст ошибки</th><th></th></tr></thead>
@@ -207,10 +210,22 @@
 
   <mat-tab label="Пакеты">
     <section class="packages">
+      @if (agentOpen()) {
+        <pt-llm-prompt
+          [text]="packagePrompt"
+          [busy]="asking()"
+          placeholder="Например: добавь пакеты Базовый и Расширенный с покрытиями смерть и НС"
+          (textChange)="packagePrompt = $event"
+          (run)="askPackages()"
+          (close)="agentOpen.set(false)" />
+      }
       <section class="panel pt-panel">
         <div class="toolbar">
           <h2 class="section-title">Пакеты</h2>
-          <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addPackage()">Добавить</button>
+          <button mat-stroked-button class="pt-btn-agent" type="button" matTooltip="AI-агент" aria-label="AI-агент" [class.is-open]="agentOpen()" [disabled]="locked" (click)="agentOpen.set(!agentOpen())">
+            <mat-icon>smart_toy</mat-icon>
+          </button>
+          <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addPackage()"><mat-icon>add</mat-icon>Добавить</button>
         </div>
       </section>
       @for (pkg of product.packages; track pkg.code) {
@@ -231,7 +246,7 @@
             <div class="pkg__body">
               <div class="toolbar">
                 <h2>Покрытия</h2>
-                <pt-action-button kind="add" [disabled]="locked" (pressed)="addCover(pkg)" />
+                <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addCover(pkg)"><mat-icon>add</mat-icon>Добавить</button>
               </div>
               <div class="covers">
                 @for (cover of pkg.covers; track cover.code) {
@@ -259,7 +274,7 @@
                       <div class="deductibles">
                         <div class="deductibles__head">
                           <strong>Франшизы</strong>
-                          <pt-action-button kind="add" [disabled]="locked" (pressed)="addDeductible(cover)" />
+                          <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addDeductible(cover)"><mat-icon>add</mat-icon>Добавить</button>
                         </div>
                         <table>
                           <thead><tr><th>№</th><th>Тип франшизы</th><th></th></tr></thead>
@@ -287,7 +302,7 @@
               </div>
               <div class="toolbar">
                 <h2>Файлы</h2>
-                <pt-action-button kind="add" [disabled]="locked" (pressed)="addFile(pkg)" />
+                <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="locked" (click)="addFile(pkg)"><mat-icon>add</mat-icon>Добавить</button>
               </div>
               <table class="files">
                 <thead>

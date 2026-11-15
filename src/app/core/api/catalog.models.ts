@@ -70,9 +70,110 @@ export interface ProductSummary {
 
 export interface InsuranceCompany {
   id?: number;
+  tid?: number;
   code?: string;
   name?: string;
   status?: string;
+  shortName?: string;
+  fullName?: string;
+  egr?: string;
+  postalAddress?: string;
+  legalAddress?: string;
+  phone?: string;
+  mail?: string;
+  inn?: string;
+  kpp?: string;
+  okpo?: string;
+  ogrn?: string;
+  account?: string;
+  bank?: string;
+  bic?: string;
+  corrAccount?: string;
+  contractText?: string;
+  contractRepresentative?: string;
+}
+
+export interface PartnerConfiguration {
+  paymentGate?: string;
+  sendEmailAfterBuy?: boolean;
+  sendSmsAfterBuy?: boolean;
+  paymentGateAgentNumber?: string;
+  paymentGateLogin?: string;
+  paymentGatePassword?: string;
+  employeeEmail?: string;
+}
+
+export interface Partner {
+  id?: number;
+  tid?: number;
+  authClientId: string;
+  name: string;
+  recordStatus: string;
+  defaultAccountId?: number;
+  clientAccountId?: number;
+  authType?: string | null;
+  authLevel: string;
+  clientConfiguration?: PartnerConfiguration;
+  isDeleted?: boolean;
+}
+
+export interface PartnerProduct {
+  id?: number;
+  accountId?: number;
+  lobCode?: string;
+  roleProductId: number;
+  roleProductName?: string;
+  productCode?: string;
+  productName?: string;
+  isDeleted?: boolean;
+}
+
+export interface PartnerMember {
+  id: number;
+  userLogin: string;
+  fullName?: string;
+  position?: string;
+  userRole?: string;
+  accountId?: number;
+}
+
+export interface PartnerCommission {
+  id?: number;
+  accountId: number;
+  productId: number;
+  action: string;
+  rateValue?: number | null;
+  fixedAmount?: number | null;
+  minAmount?: number | null;
+  maxAmount?: number | null;
+  commissionMinRate?: number | null;
+  commissionMaxRate?: number | null;
+  agdNumber?: string;
+}
+
+export interface AddonProvider {
+  id?: number;
+  name: string;
+  recordStatus: string;
+  executionMode?: string;
+}
+
+export interface AddonProductRef {
+  productId: number;
+  preconditions?: string;
+}
+
+export interface AddonPricelist {
+  id?: number;
+  providerId: number;
+  code: string;
+  name: string;
+  categoryCode?: string;
+  price?: number | null;
+  amountFree?: number | null;
+  amountBooked?: number | null;
+  recordStatus: string;
+  addonProducts?: AddonProductRef[];
 }
 
 export interface PolicyForm {

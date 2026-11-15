@@ -1,0 +1,230 @@
+<pt-page-header
+  [title]="title()"
+  [breadcrumbs]="[{ label: 'Партнеры', route: '/partners' }, { label: title() }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<mat-tab-group class="tabs" [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
+  <mat-tab label="Основные данные">
+    <div class="stack">
+      <section class="panel pt-panel">
+        <h2 class="section-title">Основные данные клиента</h2>
+        <div class="grid">
+          @if (!isNew()) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>ID</mat-label>
+              <input matInput [ngModel]="partner.id" readonly>
+            </mat-form-field>
+          }
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Client ID</mat-label>
+            <input matInput [(ngModel)]="partner.authClientId" (ngModelChange)="touch()">
+            <mat-hint>client_id приходящее в токене от IdP</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Название</mat-label>
+            <input matInput [(ngModel)]="partner.name" (ngModelChange)="touch()">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Статус</mat-label>
+            <mat-select [(ngModel)]="partner.recordStatus" (ngModelChange)="touch()">
+              <mat-option value="ACTIVE">ACTIVE</mat-option>
+              <mat-option value="SUSPENDED">SUSPENDED</mat-option>
+            </mat-select>
+          </mat-form-field>
+          @if (!isNew()) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Account ID</mat-label>
+              <input matInput [ngModel]="partner.clientAccountId" readonly>
+            </mat-form-field>
+          }
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Тип авторизации</mat-label>
+            <mat-select [(ngModel)]="partner.authType" (ngModelChange)="touch()">
+              <mat-option value="">Как на tenant</mat-option>
+              <mat-option value="LOCAL_JWT">LOCAL_JWT</mat-option>
+              <mat-option value="HEADERS">HEADERS</mat-option>
+              <mat-option value="APIKEY">APIKEY</mat-option>
+              <mat-option value="NONE">NONE</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Уровень авторизации</mat-label>
+            <mat-select [(ngModel)]="partner.authLevel" (ngModelChange)="touch()">
+              <mat-option value="CLIENT">CLIENT</mat-option>
+              <mat-option value="USER">USER</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="panel pt-panel">
+        <h2 class="section-title">Конфигурация клиента</h2>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Email сотрудника</mat-label>
+            <input matInput type="email" [(ngModel)]="config().employeeEmail" (ngModelChange)="touch()">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Отправлять email после покупки</mat-label>
+            <mat-select [(ngModel)]="config().sendEmailAfterBuy" (ngModelChange)="touch()">
+              <mat-option [value]="true">Да</mat-option>
+              <mat-option [value]="false">Нет</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Отправлять SMS после покупки</mat-label>
+            <mat-select [(ngModel)]="config().sendSmsAfterBuy" (ngModelChange)="touch()">
+              <mat-option [value]="true">Да</mat-option>
+              <mat-option [value]="false">Нет</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="panel pt-panel">
+        <h2 class="section-title">Платежный шлюз</h2>
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Платежный шлюз</mat-label>
+            <mat-select [(ngModel)]="config().paymentGate" (ngModelChange)="touch()">
+              <mat-option value="">—</mat-option>
+              <mat-option value="YOUKASSA">YOUKASSA</mat-option>
+              <mat-option value="VSK">VSK</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Номер агента платежного шлюза</mat-label>
+            <input matInput [(ngModel)]="config().paymentGateAgentNumber" (ngModelChange)="touch()">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Логин платежного шлюза</mat-label>
+            <input matInput [(ngModel)]="config().paymentGateLogin" (ngModelChange)="touch()">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Пароль платежного шлюза</mat-label>
+            <input matInput type="password" [(ngModel)]="config().paymentGatePassword" (ngModelChange)="touch()">
+          </mat-form-field>
+        </div>
+      </section>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Страховые продукты" [disabled]="isNew()">
+    <div class="stack">
+      <section class="panel pt-panel">
+        <div class="toolbar">
+          <h2 class="section-title">Доступные продукты</h2>
+          <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="isNew()" (click)="addProduct()">
+            <mat-icon>add</mat-icon>
+            Добавить
+          </button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Продукт</th><th>Статус</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (item of products(); track item.id ?? item.roleProductId) {
+              <tr [class.is-selected]="selectedProductId() === item.id" (click)="selectProduct(item)">
+                <td>{{ item.roleProductId }}</td>
+                <td>{{ productLabel(item) }}</td>
+                <td>{{ item.isDeleted ? 'Удалён' : 'Активен' }}</td>
+                <td class="row-actions">
+                  <pt-action-button kind="delete" (pressed)="removeProduct(item)" />
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="state">Нет продуктов</td></tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      @if (selectedProduct(); as product) {
+        <section class="panel pt-panel">
+          <div class="toolbar">
+            <h2 class="section-title">Агентский договор: {{ productLabel(product) }}</h2>
+            <button mat-flat-button class="pt-btn-accent" type="button" (click)="addCommission()">
+              <mat-icon>add</mat-icon>
+              Добавить
+            </button>
+          </div>
+          <div class="wide">
+            <table>
+              <thead>
+                <tr>
+                  <th>№ АгД</th>
+                  <th>Основание</th>
+                  <th>% кВ</th>
+                  <th>мин % кВ</th>
+                  <th>макс % кВ</th>
+                  <th>мин сумма кВ</th>
+                  <th>макс сумма кВ</th>
+                  <th>фикс сумма кВ</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of commissions(); track item.id) {
+                  <tr (click)="openCommission(item)">
+                    <td>{{ item.agdNumber || '—' }}</td>
+                    <td>{{ actionLabel(item.action) }}</td>
+                    <td>{{ amount(item.rateValue) }}</td>
+                    <td>{{ amount(item.commissionMinRate) }}</td>
+                    <td>{{ amount(item.commissionMaxRate) }}</td>
+                    <td>{{ amount(item.minAmount) }}</td>
+                    <td>{{ amount(item.maxAmount) }}</td>
+                    <td>{{ amount(item.fixedAmount) }}</td>
+                    <td class="row-actions">
+                      <pt-action-button kind="edit" (pressed)="openCommission(item)" />
+                      <pt-action-button kind="delete" (pressed)="removeCommission(item)" />
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="9" class="state">Нет договоров</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Админы" [disabled]="isNew()">
+    <section class="panel pt-panel">
+      <div class="toolbar">
+        <h2 class="section-title">Администраторы (GROUP_ADMIN)</h2>
+        <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="isNew()" (click)="addAdmin()">
+          <mat-icon>add</mat-icon>
+          Добавить
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Логин</th><th>ФИО</th><th>Должность</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (member of admins(); track member.id) {
+            <tr (click)="showAdmin(member)">
+              <td>{{ member.id }}</td>
+              <td>{{ member.userLogin }}</td>
+              <td>{{ member.fullName || '—' }}</td>
+              <td>{{ member.position || '—' }}</td>
+              <td class="row-actions">
+                <pt-action-button kind="delete" (pressed)="removeAdmin(member)" />
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="state">Нет записей</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+</mat-tab-group>

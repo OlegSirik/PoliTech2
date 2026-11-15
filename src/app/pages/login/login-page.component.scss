@@ -101,12 +101,6 @@
   letter-spacing: var(--pt-tracking-tight);
 }
 
-.card header p,
-.card__hint {
-  color: var(--pt-color-ink-soft);
-  font-size: var(--pt-font-sm);
-}
-
 .card mat-form-field,
 .card button[type="submit"] {
   width: 100%;

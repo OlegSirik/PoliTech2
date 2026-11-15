@@ -1,0 +1,39 @@
+<pt-page-header
+  [title]="isNew() ? 'Новый поставщик' : (provider.name || 'Поставщик')"
+  [breadcrumbs]="[{ label: 'Доп.продукты', route: '/addons' }, { label: isNew() ? 'Новый' : provider.name || 'Поставщик' }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<section class="panel pt-panel">
+  <h2 class="section-title">Данные поставщика</h2>
+  <div class="grid">
+    @if (!isNew()) {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ID</mat-label>
+        <input matInput [ngModel]="provider.id" readonly>
+      </mat-form-field>
+    }
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Название</mat-label>
+      <input matInput [(ngModel)]="provider.name" (ngModelChange)="touch()">
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Статус</mat-label>
+      <mat-select [(ngModel)]="provider.recordStatus" (ngModelChange)="touch()">
+        <mat-option value="ACTIVE">ACTIVE</mat-option>
+        <mat-option value="SUSPENDED">SUSPENDED</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Интеграция с поставщиком услуг</mat-label>
+      <mat-select [(ngModel)]="provider.executionMode" (ngModelChange)="touch()">
+        <mat-option value="LOCAL">Без интеграции</mat-option>
+        <mat-option value="API">API</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</section>

@@ -1,28 +1,28 @@
 <pt-page-header
   title="Обзор"
-  subtitle="Продукты, линии бизнеса и калькуляторы читаются из PoliTechAPI через BFF.">
+  subtitle="Продукты, линии бизнеса и страховые компании читаются из PoliTechAPI через BFF.">
 </pt-page-header>
 
 <section class="stats">
-  <a class="stat pt-panel" routerLink="/products">
-    <mat-icon>inventory_2</mat-icon>
-    <span>Продукты</span>
-    <strong>{{ products().length }}</strong>
+  <a class="stat pt-panel" routerLink="/products" [queryParams]="{ dev: '1' }">
+    <mat-icon>construction</mat-icon>
+    <span>Продукты в разработке</span>
+    <strong>{{ devCount() }}</strong>
   </a>
   <a class="stat pt-panel" routerLink="/business-lines">
     <mat-icon>account_tree</mat-icon>
     <span>Линии бизнеса</span>
     <strong>{{ lineCount() }}</strong>
   </a>
-  <a class="stat pt-panel" routerLink="/calculators">
-    <mat-icon>calculate</mat-icon>
-    <span>Калькуляторы</span>
-    <strong>пакеты</strong>
+  <a class="stat pt-panel" routerLink="/ins-companies">
+    <mat-icon>business</mat-icon>
+    <span>Страховые компании</span>
+    <strong>{{ companyCount() }}</strong>
   </a>
-  <a class="stat pt-panel" routerLink="/demo">
-    <mat-icon>widgets</mat-icon>
-    <span>Компоненты</span>
-    <strong>7</strong>
+  <a class="stat pt-panel" routerLink="/products" [queryParams]="{ prod: '1' }">
+    <mat-icon>rocket_launch</mat-icon>
+    <span>Продукты в проде</span>
+    <strong>{{ prodCount() }}</strong>
   </a>
 </section>
 

@@ -1,0 +1,85 @@
+<pt-page-header
+  [title]="title()"
+  [breadcrumbs]="[{ label: 'Доп.продукты', route: '/addons' }, { label: isNew() ? 'Новая услуга' : pricelist.name || 'Услуга' }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<mat-tab-group class="tabs">
+  <mat-tab label="Описание продукта">
+    <section class="panel pt-panel">
+      <h2 class="section-title">Данные прайс-листа</h2>
+      <div class="grid">
+        @if (!isNew()) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>ID</mat-label>
+            <input matInput [ngModel]="pricelist.id" readonly>
+          </mat-form-field>
+        }
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Категория</mat-label>
+          <input matInput [(ngModel)]="pricelist.categoryCode" (ngModelChange)="touch()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Код продукта</mat-label>
+          <input matInput [(ngModel)]="pricelist.code" (ngModelChange)="touch()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Название</mat-label>
+          <input matInput [(ngModel)]="pricelist.name" (ngModelChange)="touch()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Цена</mat-label>
+          <input matInput type="number" [(ngModel)]="pricelist.price" (ngModelChange)="touch()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Количество доступных к продаже</mat-label>
+          <input matInput type="number" [(ngModel)]="pricelist.amountFree" (ngModelChange)="touch()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Статус</mat-label>
+          <mat-select [(ngModel)]="pricelist.recordStatus" (ngModelChange)="touch()">
+            <mat-option value="ACTIVE">ACTIVE</mat-option>
+            <mat-option value="SUSPENDED">SUSPENDED</mat-option>
+            <mat-option value="DELETED">DELETED</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </section>
+  </mat-tab>
+  <mat-tab label="Связанные страховые продукты" [disabled]="isNew()">
+    <section class="panel pt-panel">
+      <div class="toolbar">
+        <h2 class="section-title">К каким продуктам предлагать</h2>
+        <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="isNew()" (click)="addProduct()">
+          <mat-icon>add</mat-icon>
+          Добавить продукт
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Product ID</th><th>Страховой продукт</th><th>Условие отбора</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (item of pricelist.addonProducts ?? []; track item.productId) {
+            <tr>
+              <td>{{ item.productId }}</td>
+              <td>{{ productName(item.productId) }}</td>
+              <td (click)="$event.stopPropagation()">
+                <input [ngModel]="item.preconditions" (ngModelChange)="item.preconditions = $event; touch()">
+              </td>
+              <td class="row-actions">
+                <pt-action-button kind="delete" (pressed)="removeProduct(item.productId)" />
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="state">Нет продуктов</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  </mat-tab>
+</mat-tab-group>

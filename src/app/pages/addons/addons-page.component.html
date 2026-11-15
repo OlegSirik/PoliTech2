@@ -1,0 +1,81 @@
+<pt-page-header
+  title="Доп.продукты"
+  subtitle="Поставщики услуг и список услуг."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Доп.продукты' }]">
+</pt-page-header>
+
+<div class="stack">
+  <section class="panel pt-panel">
+    <div class="toolbar">
+      <h2 class="section-title">Поставщики услуг</h2>
+      <button mat-flat-button class="pt-btn-accent" type="button" (click)="addProvider()">
+        <mat-icon>add</mat-icon>
+        Добавить
+      </button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Название</th><th>Статус</th><th></th></tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr><td colspan="4" class="state">Загрузка…</td></tr>
+        } @else {
+          @for (provider of providers(); track provider.id) {
+            <tr [class.is-selected]="selectedId() === provider.id" (click)="selectProvider(provider)">
+              <td>{{ provider.id }}</td>
+              <td>{{ provider.name }}</td>
+              <td><span [class]="'pt-status ' + statusClass(provider.recordStatus)">{{ status(provider.recordStatus) }}</span></td>
+              <td class="row-actions">
+                <pt-action-button kind="edit" (pressed)="editProvider(provider)" />
+                <pt-action-button kind="delete" (pressed)="suspendProvider(provider)" />
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="state">Поставщиков нет</td></tr>
+          }
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel pt-panel">
+    <div class="toolbar">
+      <h2 class="section-title">Список услуг</h2>
+      <button mat-flat-button class="pt-btn-accent" type="button" [disabled]="selectedId() == null" (click)="addPricelist()">
+        <mat-icon>add</mat-icon>
+        Добавить
+      </button>
+    </div>
+    @if (selectedId() == null) {
+      <p class="state">Выберите поставщика, чтобы увидеть услуги.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Код</th><th>Название</th><th>Цена</th><th>Статус</th><th></th></tr>
+        </thead>
+        <tbody>
+          @if (loadingPricelists()) {
+            <tr><td colspan="6" class="state">Загрузка…</td></tr>
+          } @else {
+            @for (item of pricelists(); track item.id) {
+              <tr (click)="editPricelist(item)">
+                <td>{{ item.id }}</td>
+                <td>{{ item.code }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ price(item.price) }}</td>
+                <td><span [class]="'pt-status ' + statusClass(item.recordStatus)">{{ status(item.recordStatus) }}</span></td>
+                <td class="row-actions">
+                  <pt-action-button kind="edit" (pressed)="editPricelist(item)" />
+                  <pt-action-button kind="delete" (pressed)="deletePricelist(item)" />
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="state">Услуг нет</td></tr>
+            }
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</div>

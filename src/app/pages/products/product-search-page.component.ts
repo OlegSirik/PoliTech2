@@ -36,6 +36,8 @@ export class ProductSearchPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   protected readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
+  protected readonly prodOnly = signal(this.route.snapshot.queryParamMap.get('prod') === '1');
+  protected readonly devOnly = signal(this.route.snapshot.queryParamMap.get('dev') === '1');
   protected readonly companyId = signal<number | null>(null);
   protected readonly loading = signal(false);
   protected readonly products = signal<ProductSummary[]>([]);
@@ -45,6 +47,18 @@ export class ProductSearchPageComponent implements OnInit {
     { label: 'Обзор', route: '/dashboard' },
     { label: 'Продукты' },
   ];
+  protected readonly pageTitle = computed(() => {
+    if (this.devOnly()) {
+      return 'Продукты в разработке';
+    }
+    return this.prodOnly() ? 'Продукты в проде' : 'Страховые продукты';
+  });
+  protected readonly pageSubtitle = computed(() => {
+    if (this.devOnly()) {
+      return 'Продукты с версией в разработке.';
+    }
+    return this.prodOnly() ? 'Продукты с опубликованной продакшен-версией.' : '';
+  });
   protected readonly columns: PtColumn[] = [
     { key: 'code', label: 'Код', width: '120px' },
     { key: 'name', label: 'Название' },
@@ -64,6 +78,8 @@ export class ProductSearchPageComponent implements OnInit {
   protected readonly rows = computed<PtRow[]>(() => {
     const query = this.query().trim().toLowerCase();
     return this.products()
+      .filter((item) => !this.prodOnly() || item.prodVersionNo != null)
+      .filter((item) => !this.devOnly() || item.devVersionNo != null)
       .filter((item) => `${item.code} ${item.name} ${item.lob}`.toLowerCase().includes(query))
       .map((item) => ({
         id: String(item.id ?? item.code),
@@ -81,6 +97,8 @@ export class ProductSearchPageComponent implements OnInit {
       if (next !== this.query()) {
         this.query.set(next);
       }
+      this.prodOnly.set(params.get('prod') === '1');
+      this.devOnly.set(params.get('dev') === '1');
       const company = params.get('insComp');
       const parsed = company == null || company === '' ? null : Number(company);
       this.companyId.set(parsed != null && Number.isFinite(parsed) ? parsed : null);
@@ -141,7 +159,12 @@ export class ProductSearchPageComponent implements OnInit {
     if (!product?.id) {
       return;
     }
-    void this.router.navigate(['/products', product.id, 'versions', workingVersion(product)]);
+    const version = this.devOnly() && product.devVersionNo != null
+      ? product.devVersionNo
+      : this.prodOnly() && product.prodVersionNo != null
+        ? product.prodVersionNo
+        : workingVersion(product);
+    void this.router.navigate(['/products', product.id, 'versions', version]);
   }
 
   private create(): void {

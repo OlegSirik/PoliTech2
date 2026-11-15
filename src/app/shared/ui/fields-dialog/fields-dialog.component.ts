@@ -5,11 +5,13 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 export interface DialogField {
   key: string;
   label: string;
-  kind?: 'text' | 'number' | 'checkbox' | 'textarea';
+  kind?: 'text' | 'number' | 'checkbox' | 'textarea' | 'select';
+  options?: string[];
 }
 
 export interface FieldsDialogData {
@@ -20,7 +22,7 @@ export interface FieldsDialogData {
 
 @Component({
   selector: 'pt-fields-dialog',
-  imports: [FormsModule, MatDialogModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatInputModule],
+  imports: [FormsModule, MatDialogModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, MatSelectModule],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <div mat-dialog-content class="fields">
@@ -32,6 +34,12 @@ export interface FieldsDialogData {
             <mat-label>{{ field.label }}</mat-label>
             @if (field.kind === 'textarea') {
               <textarea matInput rows="3" [(ngModel)]="model[field.key]"></textarea>
+            } @else if (field.kind === 'select') {
+              <mat-select [(ngModel)]="model[field.key]">
+                @for (option of field.options ?? []; track option) {
+                  <mat-option [value]="option">{{ option }}</mat-option>
+                }
+              </mat-select>
             } @else {
               <input matInput [(ngModel)]="model[field.key]" [type]="field.kind === 'number' ? 'number' : 'text'">
             }

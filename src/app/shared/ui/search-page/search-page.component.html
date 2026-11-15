@@ -43,11 +43,7 @@
               @for (column of columns(); track column.key) {
                 <td>
                   @if (column.kind === 'status') {
-                    <span
-                      class="pt-status"
-                      [class.is-published]="cell(row, column) === 'Опубликован'"
-                      [class.is-draft]="cell(row, column) === 'Черновик'"
-                      [class.is-archived]="cell(row, column) === 'Архив'">{{ cell(row, column) }}</span>
+                    <span [class]="'pt-status ' + statusClass(cell(row, column))">{{ cell(row, column) }}</span>
                   } @else {
                     {{ cell(row, column) }}
                   }

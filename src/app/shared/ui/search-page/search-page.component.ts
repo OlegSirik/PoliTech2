@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PageHeaderComponent } from '../page-header/page-header.component';
-import { Breadcrumb, PtAction, PtColumn, PtRow, PtRowAction, PtRowActionEvent } from '../platform.models';
+import { Breadcrumb, PtAction, PtColumn, PtRow, PtRowAction, PtRowActionEvent, statusClass as ptStatusClass } from '../platform.models';
 
 @Component({
   selector: 'pt-search-page',
@@ -41,6 +41,10 @@ export class SearchPageComponent {
 
   protected cell(row: PtRow, column: PtColumn): string {
     return row[column.key] ?? '';
+  }
+
+  protected statusClass(value: string): string {
+    return ptStatusClass(value);
   }
 
   protected onRowClick(row: PtRow): void {

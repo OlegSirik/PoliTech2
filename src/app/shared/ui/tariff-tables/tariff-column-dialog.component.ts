@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,7 +16,7 @@ export interface TariffColumnDialogData {
 
 @Component({
   selector: 'pt-tariff-column-dialog',
-  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>{{ data.isNew ? 'Добавить колонку' : 'Редактировать колонку' }}</h2>
     <div mat-dialog-content class="fields">
@@ -58,7 +59,10 @@ export interface TariffColumnDialogData {
     </div>
     <div mat-dialog-actions align="end">
       <button mat-stroked-button type="button" mat-dialog-close>Отмена</button>
-      <button mat-flat-button color="primary" type="button" [disabled]="!valid()" (click)="submit()">
+      <button mat-flat-button color="primary" type="button" [class.pt-btn-accent]="data.isNew" [disabled]="!valid()" (click)="submit()">
+        @if (data.isNew) {
+          <mat-icon>add</mat-icon>
+        }
         {{ data.isNew ? 'Добавить' : 'Сохранить' }}
       </button>
     </div>

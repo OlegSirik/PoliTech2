@@ -1,0 +1,112 @@
+<pt-page-header
+  [title]="isNew() ? 'Новая страховая компания' : (company.name || 'Страховая компания')"
+  [breadcrumbs]="[{ label: 'Страховые компании', route: '/ins-companies' }, { label: isNew() ? 'Новая' : company.name || company.code || 'Компания' }]"
+  [notice]="dirty() ? 'Есть несохранённые изменения' : ''">
+  <button ptHeaderActions mat-stroked-button type="button" (click)="back()">Назад</button>
+  <button ptHeaderActions mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Сохранение…' : 'Сохранить' }}
+  </button>
+</pt-page-header>
+
+<div class="stack">
+  <section class="panel pt-panel">
+    <h2 class="section-title">Основные данные</h2>
+    <div class="grid">
+      @if (!isNew()) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>ID</mat-label>
+          <input matInput [ngModel]="company.id" readonly>
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Код</mat-label>
+        <input matInput [(ngModel)]="company.code" maxlength="30" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Название</mat-label>
+        <input matInput [(ngModel)]="company.name" maxlength="300" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Статус</mat-label>
+        <mat-select [(ngModel)]="company.status" (ngModelChange)="touch()">
+          <mat-option value="active">active</mat-option>
+          <mat-option value="suspended">suspended</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </section>
+
+  <section class="panel pt-panel">
+    <h2 class="section-title">Реквизиты и контакты</h2>
+    <div class="grid">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Краткое наименование</mat-label>
+        <input matInput [(ngModel)]="company.shortName" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Полное наименование</mat-label>
+        <input matInput [(ngModel)]="company.fullName" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ЕГРЮЛ / реестр</mat-label>
+        <input matInput [(ngModel)]="company.egr" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Почтовый адрес</mat-label>
+        <input matInput [(ngModel)]="company.postalAddress" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field class="wide" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Юридический адрес</mat-label>
+        <input matInput [(ngModel)]="company.legalAddress" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Телефон</mat-label>
+        <input matInput [(ngModel)]="company.phone" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>E-mail</mat-label>
+        <input matInput [(ngModel)]="company.mail" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ИНН</mat-label>
+        <input matInput [(ngModel)]="company.inn" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>КПП</mat-label>
+        <input matInput [(ngModel)]="company.kpp" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ОКПО</mat-label>
+        <input matInput [(ngModel)]="company.okpo" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ОГРН</mat-label>
+        <input matInput [(ngModel)]="company.ogrn" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Расчётный счёт</mat-label>
+        <input matInput [(ngModel)]="company.account" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Банк</mat-label>
+        <input matInput [(ngModel)]="company.bank" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>БИК</mat-label>
+        <input matInput [(ngModel)]="company.bic" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Корр. счёт</mat-label>
+        <input matInput [(ngModel)]="company.corrAccount" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field class="wide" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Наименование для договора</mat-label>
+        <input matInput [(ngModel)]="company.contractText" (ngModelChange)="touch()">
+      </mat-form-field>
+      <mat-form-field class="wide" appearance="outline" subscriptSizing="dynamic">
+        <mat-label>ФИО представителя для договора</mat-label>
+        <input matInput [(ngModel)]="company.contractRepresentative" (ngModelChange)="touch()">
+      </mat-form-field>
+    </div>
+  </section>
+</div>

@@ -37,12 +37,17 @@
     <button mat-flat-button color="primary" type="button" disabled>Недоступна</button>
     <pt-theme-toggle />
     <button mat-stroked-button class="pt-btn-agent" type="button" matTooltip="AI-агент" aria-label="AI-агент"><mat-icon>smart_toy</mat-icon></button>
-    <pt-action-button kind="add" />
+    <button mat-flat-button class="pt-btn-accent" type="button">
+      <mat-icon>add</mat-icon>
+      Добавить
+    </button>
     <pt-action-button kind="edit" />
     <pt-action-button kind="delete" />
     <span class="pt-status is-published">Опубликован</span>
     <span class="pt-status is-draft">Черновик</span>
     <span class="pt-status is-archived">Архив</span>
+    <span class="pt-status is-active">active</span>
+    <span class="pt-status is-suspended">suspended</span>
     <span class="state-selected">Выбрано</span>
   </div>
 </section>

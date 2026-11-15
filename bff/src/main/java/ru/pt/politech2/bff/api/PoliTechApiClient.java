@@ -77,6 +77,47 @@ public class PoliTechApiClient {
         return exchange(ready);
     }
 
+    public UpstreamBinary authorizedBinary(
+            String method,
+            String tenantCode,
+            String accessToken,
+            String tokenType,
+            String accountId,
+            String pathAfterTenant,
+            String rawQuery) {
+        String auth = (tokenType == null || tokenType.isBlank() ? "Bearer" : tokenType) + " " + accessToken;
+        URI uri = UriComponentsBuilder.fromUriString(baseUrl)
+                .path("/api/v1/{tenant}/")
+                .path(pathAfterTenant)
+                .buildAndExpand(tenantCode)
+                .encode()
+                .toUri();
+        if (rawQuery != null && !rawQuery.isBlank()) {
+            uri = URI.create(uri.toASCIIString() + "?" + rawQuery);
+        }
+        RestClient.RequestBodySpec spec = restClient.method(HttpMethod.valueOf(method))
+                .uri(uri)
+                .accept(MediaType.ALL)
+                .header("Authorization", auth);
+        if (accountId != null && !accountId.isBlank()) {
+            spec = spec.header("X-Account-Id", accountId);
+        }
+        try {
+            ResponseEntity<byte[]> entity = spec.retrieve().toEntity(byte[].class);
+            return new UpstreamBinary(
+                    entity.getStatusCode().value(),
+                    entity.getBody(),
+                    entity.getHeaders().getContentType(),
+                    true);
+        } catch (RestClientResponseException ex) {
+            return new UpstreamBinary(
+                    ex.getStatusCode().value(),
+                    ex.getResponseBodyAsByteArray(),
+                    MediaType.APPLICATION_JSON,
+                    false);
+        }
+    }
+
     private UpstreamResponse exchange(RestClient.RequestHeadersSpec<?> spec) {
         try {
             ResponseEntity<String> entity = spec.retrieve().toEntity(String.class);
@@ -94,5 +135,8 @@ public class PoliTechApiClient {
     }
 
     public record UpstreamResponse(int status, String body, boolean success) {
+    }
+
+    public record UpstreamBinary(int status, byte[] body, MediaType contentType, boolean success) {
     }
 }

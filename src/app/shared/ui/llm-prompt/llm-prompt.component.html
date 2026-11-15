@@ -1,0 +1,20 @@
+<h2>AI-агент</h2>
+<mat-form-field appearance="outline" subscriptSizing="dynamic">
+  <mat-label>Команда для AI-агента</mat-label>
+  <textarea
+    matInput
+    rows="3"
+    [ngModel]="text()"
+    (ngModelChange)="text.set($event)"
+    [placeholder]="placeholder()">
+  </textarea>
+</mat-form-field>
+@if (!ready()) {
+  <p class="notice">LLM не настроен или отключён. Настройте интеграцию в разделе Tenants → LLM.</p>
+}
+<div class="toolbar">
+  <button mat-flat-button color="primary" type="button" [disabled]="!ready() || busy() || !text().trim()" (click)="submit()">
+    {{ busy() ? 'Запрос…' : 'Выполнить' }}
+  </button>
+  <button mat-stroked-button type="button" (click)="close.emit()">Закрыть</button>
+</div>

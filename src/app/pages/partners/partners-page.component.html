@@ -1,0 +1,39 @@
+<pt-page-header
+  title="Партнеры"
+  subtitle="Список партнеров."
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Партнеры' }]">
+</pt-page-header>
+
+<section class="panel pt-panel">
+  <div class="toolbar">
+    <h2 class="section-title">Список партнеров</h2>
+    <button mat-flat-button class="pt-btn-accent" type="button" (click)="add()">
+      <mat-icon>add</mat-icon>
+      Добавить
+    </button>
+  </div>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Client ID</th><th>Название</th><th>Статус</th><th></th></tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+        <tr><td colspan="5" class="state">Загрузка…</td></tr>
+      } @else {
+        @for (partner of partners(); track partner.id) {
+          <tr (click)="open(partner)">
+            <td>{{ partner.id }}</td>
+            <td>{{ partner.authClientId }}</td>
+            <td>{{ partner.name }}</td>
+            <td><span [class]="'pt-status ' + statusClass(status(partner))">{{ status(partner) }}</span></td>
+            <td class="row-actions">
+              <pt-action-button kind="edit" (pressed)="open(partner)" />
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5" class="state">Партнеров нет</td></tr>
+        }
+      }
+    </tbody>
+  </table>
+</section>

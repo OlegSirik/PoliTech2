@@ -59,6 +59,16 @@ a {
   color: var(--pt-color-ink-soft);
 }
 
+.pt-status.is-active {
+  background: var(--pt-color-primary-container);
+  color: var(--pt-color-primary);
+}
+
+.pt-status.is-suspended {
+  background: var(--pt-color-danger-container);
+  color: var(--pt-color-danger);
+}
+
 .pt-field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

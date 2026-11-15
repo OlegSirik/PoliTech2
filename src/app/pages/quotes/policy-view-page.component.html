@@ -1,0 +1,47 @@
+<pt-page-header
+  [title]="'Договор ' + policyNr()"
+  [subtitle]="productTitle()"
+  [breadcrumbs]="[{ label: 'Обзор', route: '/dashboard' }, { label: 'Котировки', route: '/quotes' }, { label: policyNr() }]">
+</pt-page-header>
+
+<section class="panel pt-panel">
+  <div class="toolbar">
+    <h2 class="section-title">Схема данных</h2>
+    <button mat-stroked-button type="button" (click)="expandAll()">Развернуть всё</button>
+    <button mat-stroked-button type="button" (click)="collapseAll()">Свернуть всё</button>
+  </div>
+
+  @if (loading()) {
+    <p class="state">Загрузка…</p>
+  } @else {
+    <table class="tree">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.node.id) {
+          <tr>
+            <td>
+              <div class="name" [style.padding-left.px]="row.level * 20">
+                @if (row.expandable) {
+                  <button mat-icon-button type="button" [attr.aria-label]="row.expanded ? 'Свернуть' : 'Развернуть'" (click)="toggle(row)">
+                    <mat-icon>{{ row.expanded ? 'remove' : 'add' }}</mat-icon>
+                  </button>
+                } @else {
+                  <span class="spacer"></span>
+                }
+                <span>{{ row.node.source.varName }}</span>
+              </div>
+            </td>
+            <td class="value">{{ value(row.node.source) }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="2" class="state">В схеме нет полей с путём</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

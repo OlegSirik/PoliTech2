@@ -32,6 +32,7 @@ import {
 } from '../../core/api/catalog.models';
 import { downloadJson, pickJsonFile } from '../../core/api/json-file';
 import { ActionButtonComponent } from '../../shared/ui/action-button/action-button.component';
+import { LlmPromptComponent } from '../../shared/ui/llm-prompt/llm-prompt.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { FieldsDialogComponent } from '../../shared/ui/fields-dialog/fields-dialog.component';
 import { SchemaTreeComponent } from './schema-tree.component';
@@ -53,6 +54,7 @@ import { SchemaVarDialogComponent } from './schema-var-dialog.component';
     MatTooltipModule,
     PageHeaderComponent,
     ActionButtonComponent,
+    LlmPromptComponent,
     SchemaTreeComponent,
   ],
   templateUrl: './product-version-page.component.html',
@@ -68,6 +70,9 @@ export class ProductVersionPageComponent implements OnInit {
 
   protected readonly saving = signal(false);
   protected readonly dirty = signal(false);
+  protected readonly agentOpen = signal(false);
+  protected readonly asking = signal(false);
+  protected packagePrompt = '';
   protected product: ProductVersion = emptyProduct();
   protected companies: InsuranceCompany[] = [];
   protected forms: PolicyForm[] = [];
@@ -195,6 +200,36 @@ export class ProductVersionPageComponent implements OnInit {
 
   protected addPackage(): void {
     this.editPackage(null);
+  }
+
+  protected askPackages(): void {
+    const text = this.packagePrompt.trim();
+    if (!text || this.asking() || this.locked) {
+      return;
+    }
+    if (this.product.id == null) {
+      this.snack.open('Сначала сохраните продукт', 'Закрыть', { duration: 3000 });
+      return;
+    }
+    this.asking.set(true);
+    this.api.assistProduct(this.product.id, this.product.versionNo, text, 'PACKAGE').subscribe({
+      next: (response) => {
+        this.asking.set(false);
+        if (response.success === false) {
+          this.snack.open(response.errors?.filter(Boolean).join('; ') || 'LLM не вернул пакеты', 'Закрыть', { duration: 4000 });
+          return;
+        }
+        const summary = this.applyPackageDrafts(this.packageDrafts(response.result));
+        const message = summary.packagesAdded || summary.coversAdded
+          ? `Пакеты: +${summary.packagesAdded}, покрытия: +${summary.coversAdded}`
+          : 'Новых пакетов и покрытий нет';
+        this.snack.open(response.warnings?.filter(Boolean).join('; ') || message, 'Закрыть', { duration: 3500 });
+      },
+      error: (error: unknown) => {
+        this.asking.set(false);
+        this.snack.open(bffErrorMessage(error, 'LLM не ответил'), 'Закрыть', { duration: 3500 });
+      },
+    });
   }
 
   protected editPackage(item: ProductPackage | null): void {
@@ -350,6 +385,80 @@ export class ProductVersionPageComponent implements OnInit {
   protected deleteFile(pkg: ProductPackage, file: PackageFile): void {
     pkg.files = pkg.files.filter((item) => item !== file);
     this.touch();
+  }
+
+  private packageDrafts(result: unknown): Array<{ code?: string; name?: string; covers?: unknown[] }> {
+    if (Array.isArray(result)) {
+      return result.filter((item): item is { code?: string; name?: string; covers?: unknown[] } => !!item && typeof item === 'object');
+    }
+    if (!result || typeof result !== 'object') {
+      return [];
+    }
+    const body = result as { packages?: unknown[]; code?: string; name?: string };
+    if (Array.isArray(body.packages)) {
+      return body.packages.filter((item): item is { code?: string; name?: string; covers?: unknown[] } => !!item && typeof item === 'object');
+    }
+    return body.code && body.name ? [body] : [];
+  }
+
+  private applyPackageDrafts(drafts: Array<{ code?: string; name?: string; covers?: unknown[] }>): { packagesAdded: number; coversAdded: number } {
+    let packagesAdded = 0;
+    let coversAdded = 0;
+    const packages = [...this.product.packages];
+    for (const draft of drafts) {
+      const code = String(draft.code ?? '').trim();
+      const name = String(draft.name ?? '').trim();
+      if (!code || !name) {
+        continue;
+      }
+      const covers = (draft.covers ?? []).flatMap((item) => {
+        const cover = this.coverFromDraft(item);
+        return cover ? [cover] : [];
+      });
+      const index = packages.findIndex((item) => item.code.trim().toUpperCase() === code.toUpperCase());
+      if (index < 0) {
+        packages.push({ code, name, covers, files: [] });
+        packagesAdded += 1;
+        coversAdded += covers.length;
+        this.togglePackage(code);
+        continue;
+      }
+      const existing = packages[index];
+      const known = new Set(existing.covers.map((item) => item.code.trim().toUpperCase()));
+      const added = covers.filter((item) => !known.has(item.code.trim().toUpperCase()));
+      if (!added.length) {
+        continue;
+      }
+      packages[index] = { ...existing, covers: [...existing.covers, ...added] };
+      coversAdded += added.length;
+    }
+    if (packagesAdded || coversAdded) {
+      this.product.packages = packages;
+      this.touch();
+    }
+    return { packagesAdded, coversAdded };
+  }
+
+  private coverFromDraft(value: unknown): ProductCover | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+    const draft = value as { code?: string; isMandatory?: boolean; waitingPeriod?: string; coverageTerm?: string; isDeductibleMandatory?: boolean; deductibles?: Array<{ id?: number; text?: string }> };
+    const code = String(draft.code ?? '').trim();
+    if (!code) {
+      return null;
+    }
+    return {
+      code,
+      isMandatory: !!draft.isMandatory,
+      waitingPeriod: draft.waitingPeriod ?? '',
+      coverageTerm: draft.coverageTerm ?? '',
+      isDeductibleMandatory: !!draft.isDeductibleMandatory,
+      deductibles: (draft.deductibles ?? [])
+        .filter((item) => item && String(item.text ?? '').trim())
+        .map((item) => ({ id: item.id, text: String(item.text).trim() })),
+      limits: [],
+    };
   }
 
   private loadCoverNames(lob: string): void {

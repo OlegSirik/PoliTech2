@@ -44,22 +44,13 @@
   <mat-tab label="Покрытия">
     <div class="stack">
       @if (agentOpen()) {
-        <section class="panel pt-panel">
-          <h2>AI-агент</h2>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Команда для AI-агента</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="coverPrompt" placeholder="Например: добавь покрытия смерть и инвалидность с рисками НС"></textarea>
-          </mat-form-field>
-          @if (!llmReady()) {
-            <p class="notice">LLM не настроен или отключён. Настройте интеграцию в разделе Tenants → LLM.</p>
-          }
-          <div class="toolbar toolbar-end">
-            <button mat-flat-button color="primary" type="button" [disabled]="!llmReady() || asking() || !coverPrompt.trim()" (click)="askCovers()">
-              {{ asking() ? 'Запрос…' : 'Выполнить' }}
-            </button>
-            <button mat-stroked-button type="button" (click)="agentOpen.set(false)">Закрыть</button>
-          </div>
-        </section>
+        <pt-llm-prompt
+          [text]="coverPrompt"
+          [busy]="asking()"
+          placeholder="Например: добавь покрытия смерть и инвалидность с рисками НС"
+          (textChange)="coverPrompt = $event"
+          (run)="askCovers()"
+          (close)="agentOpen.set(false)" />
       }
       <section class="panel pt-panel">
         <div class="toolbar">
@@ -67,7 +58,7 @@
           <button mat-stroked-button class="pt-btn-agent" type="button" matTooltip="AI-агент" aria-label="AI-агент" [class.is-open]="agentOpen()" (click)="agentOpen.set(!agentOpen())">
             <mat-icon>smart_toy</mat-icon>
           </button>
-          <pt-action-button kind="add" (pressed)="addCover()" />
+          <button mat-flat-button class="pt-btn-accent" type="button" (click)="addCover()"><mat-icon>add</mat-icon>Добавить</button>
         </div>
         <table>
           <thead><tr><th>Код</th><th>Название</th><th>Риски</th><th></th></tr></thead>
@@ -91,7 +82,7 @@
     <section class="panel pt-panel">
       <div class="toolbar">
         <h2 class="section-title">Файлы</h2>
-        <pt-action-button kind="add" (pressed)="addFile()" />
+        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addFile()"><mat-icon>add</mat-icon>Добавить</button>
       </div>
       <table>
         <thead><tr><th>Код</th><th>Название</th><th></th></tr></thead>
@@ -114,7 +105,7 @@
     <section class="panel pt-panel">
       <div class="toolbar">
         <h2 class="section-title">Строки</h2>
-        <pt-action-button kind="add" (pressed)="addVar(true)" />
+        <button mat-flat-button class="pt-btn-accent" type="button" (click)="addVar(true)"><mat-icon>add</mat-icon>Добавить</button>
       </div>
       <table>
         <thead><tr><th>Код</th><th>Название</th><th>Значение</th><th></th></tr></thead>
